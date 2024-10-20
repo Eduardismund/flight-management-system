@@ -1,0 +1,121 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+    id 'checkstyle'
+    id 'pmd'
+    id 'info.solidsoft.pitest' version '1.15.0'
+    id 'com.diffplug.spotless' version '6.25.0'
+    id 'com.github.spotbugs' version '6.0.18'
+}
+
+pitest {
+    junit5PluginVersion = '1.2.0'
+    targetClasses = ['ro.eduardismund.flightmgmt.*']
+    targetTests = ['ro.eduardismund.flightmgmt.*']
+    mutationThreshold = 100
+    outputFormats = ['HTML']
+    timestampedReports = false
+}
+
+group = 'ro.eduardismund'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'ro.eduardismund.flightmgmt.app.App'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'ro.eduardismund.flightmgmt.app.App'
+        )
+    }
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    compileOnly 'com.google.code.findbugs:findbugs:3.0.1'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+checkstyle {
+    toolVersion = '10.18.2'
+}
+
+pmd {
+    toolVersion = '7.6.0'
+    ignoreFailures = true
+}
+
+def spotbugsReportSetup(it, qualifier) {
+    it.reports.create('html') {
+        required = true
+        outputLocation = project.layout.buildDirectory.file(
+                "/reports/sportbugs/spotbugs-${qualifier}.html")
+    }
+}
+
+spotbugsReportSetup(tasks.spotbugsMain, 'main')
+spotbugsReportSetup(tasks.spotbugsTest, 'test')
+
+
+spotless {
+    java {
+        palantirJavaFormat('2.50.0')
+        removeUnusedImports()
+        indentWithSpaces(4)
+
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: [
+                            '**/ro/eduardismund/flightmgmt/cli/**', // Exclude cli directory
+                            '**/ro/eduardismund/flightmgmt/app/**'  // Exclude app directory
+                    ])
+                })
+        )
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 1.000
+            }
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: [
+                            '**/ro/eduardismund/flightmgmt/cli/**',  // Exclude cli directory
+                            '**/ro/eduardismund/flightmgmt/app/**'   // Exclude app directory
+                    ])
+                })
+        )
+    }
+}
+check.dependsOn(jacocoTestCoverageVerification)
