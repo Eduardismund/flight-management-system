@@ -72,14 +72,23 @@ def spotbugsReportSetup(it, qualifier) {
 spotbugsReportSetup(tasks.spotbugsMain, 'main')
 spotbugsReportSetup(tasks.spotbugsTest, 'test')
 
-
 spotless {
     java {
         palantirJavaFormat('2.50.0')
         removeUnusedImports()
         indentWithSpaces(4)
-
     }
+}
+
+def configureClassDirectories(task) {
+    task.classDirectories.setFrom(
+            files(task.classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        '**/ro/eduardismund/flightmgmt/cli/**', // Exclude cli directory
+                        '**/ro/eduardismund/flightmgmt/app/**'  // Exclude app directory
+                ])
+            })
+    )
 }
 
 jacocoTestReport {
@@ -88,14 +97,7 @@ jacocoTestReport {
         html.required = true
     }
     afterEvaluate {
-        classDirectories.setFrom(
-                files(classDirectories.files.collect {
-                    fileTree(dir: it, exclude: [
-                            '**/ro/eduardismund/flightmgmt/cli/**', // Exclude cli directory
-                            '**/ro/eduardismund/flightmgmt/app/**'  // Exclude app directory
-                    ])
-                })
-        )
+        configureClassDirectories(jacocoTestReport)
     }
 }
 
@@ -108,14 +110,8 @@ jacocoTestCoverageVerification {
         }
     }
     afterEvaluate {
-        classDirectories.setFrom(
-                files(classDirectories.files.collect {
-                    fileTree(dir: it, exclude: [
-                            '**/ro/eduardismund/flightmgmt/cli/**',  // Exclude cli directory
-                            '**/ro/eduardismund/flightmgmt/app/**'   // Exclude app directory
-                    ])
-                })
-        )
+        configureClassDirectories(jacocoTestCoverageVerification)
     }
 }
+
 check.dependsOn(jacocoTestCoverageVerification)

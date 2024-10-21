@@ -116,7 +116,7 @@ public class AdminUi {
      * doesn't already exist.
      */
     public void createFlight() {
-        if (service.getFlights().stream().count() == 0) {
+        if ((long) service.getFlights().size() == 0) {
             System.out.println("No flights yet!");
         } else {
             System.out.print("The list of flights: ");
@@ -145,7 +145,7 @@ public class AdminUi {
      * it doesn't already exist.
      */
     public void createAirplane() {
-        if (service.getAirplanes().stream().count() == 0) {
+        if ((long) service.getAirplanes().size() == 0) {
             System.out.println("No airplanes yet!");
         } else {
             System.out.println("The list of airplanes: ");
@@ -186,8 +186,8 @@ public class AdminUi {
      */
     public void createScheduledFlight() {
 
-        if (service.getFlights().stream().count() == 0
-                || service.getFlights().stream().count() == 0) {
+        if ((long) service.getFlights().size() == 0
+                || (long) service.getAirplanes().size() == 0) {
             System.out.println("There are not enough airplanes or flights!");
             return;
         }

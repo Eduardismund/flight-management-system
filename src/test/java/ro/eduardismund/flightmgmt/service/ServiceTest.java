@@ -136,7 +136,7 @@ class ServiceTest {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
         final var departure = LocalDateTime.now();
-        final var arrival = LocalDateTime.now().plus(11, ChronoUnit.HOURS);
+        final var arrival = LocalDateTime.now().plusHours(11);
 
         final var scheduledFlight = new ScheduledFlight();
         scheduledFlight.setFlight(flight);
@@ -230,7 +230,7 @@ class ServiceTest {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
         final var departure = LocalDateTime.now();
-        final var arrival = LocalDateTime.now().plus(11, ChronoUnit.HOURS);
+        final var arrival = LocalDateTime.now().plusHours(11);
 
         final var scheduledFlight = new ScheduledFlight();
         scheduledFlight.setFlight(flight);
@@ -264,7 +264,7 @@ class ServiceTest {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
         final var departure = LocalDateTime.now();
-        final var arrival = LocalDateTime.now().plus(11, ChronoUnit.HOURS);
+        final var arrival = LocalDateTime.now().plusHours(11);
 
         final var scheduledFlight = new ScheduledFlight();
         scheduledFlight.setFlight(flight);
@@ -291,7 +291,7 @@ class ServiceTest {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
         final var departure = LocalDateTime.now();
-        final var arrival = LocalDateTime.now().plus(11, ChronoUnit.HOURS);
+        final var arrival = LocalDateTime.now().plusHours(11);
         final var scheduledFlight = new ScheduledFlight();
         scheduledFlight.setFlight(flight);
         scheduledFlight.setAirplane(airplane);
