@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ class ServiceTest {
     }
 
     @Test
-    void createAirplane_fails_when_airplaneNumber_already_exists(){
+    void createAirplane_fails_when_airplaneNumber_already_exists() {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
 
         doReturn(Optional.of(new Airplane(airplane.getIdNumber()))).when(repo).findAirplane(airplane.getIdNumber());
@@ -65,92 +64,21 @@ class ServiceTest {
     }
 
     @Test
-    void createScheduledFlight_fails_when_Flight_doesntExist() {
+    void createFlight_fails_when_flightNumber_already_in_use() {
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setFlight(flight);
-        doReturn(false).when(repo).contains(flight);
 
-        final var exception =
-                assertThrows(IllegalArgumentException.class, () -> subject.createScheduledFlight(scheduledFlight));
+        doReturn(Optional.of(new Flight(flight.getNumber()))).when(repo).findFlight(flight.getNumber());
 
-        assertEquals("Missing or invalid flight!", exception.getMessage());
+        final var exception = assertThrows(FlightAlreadyExistsException.class, () -> subject.createFlight(flight));
+
+        assertEquals("A flight with number " + CORRECT_FLIGHT_NUMBER + " already exists", exception.getMessage());
     }
 
     @Test
-    void createScheduledFlight_fails_when_Airplane_doesntExist() {
-        final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
-        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
-
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setFlight(flight);
-        scheduledFlight.setAirplane(airplane);
-
-        doReturn(true).when(repo).contains(flight);
-        doReturn(false).when(repo).contains(airplane);
-
-        final var exception =
-                assertThrows(IllegalArgumentException.class, () -> subject.createScheduledFlight(scheduledFlight));
-
-        assertEquals("Missing or invalid airplane!", exception.getMessage());
-    }
-
-    @Test
-    void createScheduledFlight_fails_when_Arrival_before_Departure() {
-        final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
-        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
-        final var arrival = LocalDateTime.now();
-        final var departure = LocalDateTime.now().plusHours(11);
-
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setFlight(flight);
-        scheduledFlight.setAirplane(airplane);
-        scheduledFlight.setDepartureTime(departure);
-        scheduledFlight.setArrivalTime(arrival);
-
-        doReturn(true).when(repo).contains(flight);
-        doReturn(true).when(repo).contains(airplane);
-
-        final var exception = assertThrows(
-                ArrivalBeforeDepartureException.class, () -> subject.createScheduledFlight(scheduledFlight));
-
-        assertEquals(
-                "For the given Scheduled Flight, the arrival "
-                        + arrival.toLocalTime()
-                        + " is before the departure "
-                        + departure.toLocalTime(),
-                exception.getMessage());
-    }
-
-    @Test
-    void createBooking_succeedes_when_calling_repo() {
+    void createBooking_succeeds_when_calling_repo() {
         final var booking = new Booking();
         subject.createBooking(booking);
         verify(repo, times(1)).addBooking(booking);
-    }
-
-    @Test
-    void createScheduledFlight_succeedes_when_calling_repo()
-            throws ArrivalBeforeDepartureException, AirplaneAlreadyScheduledException,
-                    ScheduledFlightAlreadyExistsException {
-        final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
-        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
-        final var departure = LocalDateTime.now();
-        final var arrival = LocalDateTime.now().plusHours(11);
-
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setFlight(flight);
-        scheduledFlight.setAirplane(airplane);
-        scheduledFlight.setDepartureTime(departure);
-        scheduledFlight.setArrivalTime(arrival);
-
-        doReturn(true).when(repo).contains(flight);
-        doReturn(true).when(repo).contains(airplane);
-        subject.createScheduledFlight(scheduledFlight);
-
-        verify(repo, times(1)).findScheduledFlight(flight.getNumber(), departure.toLocalDate());
-        verify(repo, times(1)).findScheduledFlightsForAirplane(airplane.getIdNumber(), departure.toLocalDate());
-        verify(repo, times(1)).addScheduledFlight(scheduledFlight);
     }
 
     @Test
@@ -219,14 +147,13 @@ class ServiceTest {
         assertFalse(expectedScheduledFlights.isEmpty());
     }
 
-    @Test
-    void getScheduledFlights_calls_not_found_repository() {
-        final var expectedScheduledFlights = subject.getScheduledFlights();
-        assertTrue(expectedScheduledFlights.isEmpty());
-    }
+    // region createScheduledFlight Tests
 
-    @Test
-    void findScheduledFlight_calls_found_repository() {
+    @ParameterizedTest
+    @CsvSource({"true", "false"})
+    void createScheduledFlight_succeeds_when_calling_repo(boolean scheduledInThePast)
+            throws ArrivalBeforeDepartureException, AirplaneAlreadyScheduledException,
+                    ScheduledFlightAlreadyExistsException {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
         final var departure = LocalDateTime.now();
@@ -238,25 +165,24 @@ class ServiceTest {
         scheduledFlight.setDepartureTime(departure);
         scheduledFlight.setArrivalTime(arrival);
 
-        doReturn(Optional.of(scheduledFlight))
-                .when(repo)
-                .findScheduledFlight(flight.getNumber(), departure.toLocalDate());
+        doReturn(true).when(repo).contains(flight);
+        doReturn(true).when(repo).contains(airplane);
 
-        final var expectedScheduledFlight = subject.findScheduledFlight(flight.getNumber(), departure.toLocalDate());
+        if (scheduledInThePast) {
+            final var pastSf = new ScheduledFlight();
+            pastSf.setDepartureTime(departure.minusHours(11));
+            pastSf.setArrivalTime(arrival.minusHours(11));
+
+            doReturn(List.of(pastSf))
+                    .when(repo)
+                    .findScheduledFlightsForAirplane(airplane.getIdNumber(), departure.toLocalDate());
+        }
+
+        subject.createScheduledFlight(scheduledFlight);
+
         verify(repo, times(1)).findScheduledFlight(flight.getNumber(), departure.toLocalDate());
-
-        assertTrue(expectedScheduledFlight.isPresent());
-    }
-
-    @Test
-    void findScheduledFlight_calls_not_found_repository() {
-        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
-        final var departure = LocalDateTime.now();
-
-        final var expectedScheduledFlight = subject.findScheduledFlight(flight.getNumber(), departure.toLocalDate());
-        verify(repo, times(1)).findScheduledFlight(flight.getNumber(), departure.toLocalDate());
-
-        assertTrue(expectedScheduledFlight.isEmpty());
+        verify(repo, times(1)).findScheduledFlightsForAirplane(airplane.getIdNumber(), departure.toLocalDate());
+        verify(repo, times(1)).addScheduledFlight(scheduledFlight);
     }
 
     @Test
@@ -318,14 +244,102 @@ class ServiceTest {
     }
 
     @Test
-    void createFlight_fails_when_flightNumber_already_in_use() {
+    void createScheduledFlight_fails_when_Flight_doesntExist() {
+        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
+        final var scheduledFlight = new ScheduledFlight();
+        scheduledFlight.setFlight(flight);
+        doReturn(false).when(repo).contains(flight);
+
+        final var exception =
+                assertThrows(IllegalArgumentException.class, () -> subject.createScheduledFlight(scheduledFlight));
+
+        assertEquals("Missing or invalid flight!", exception.getMessage());
+    }
+
+    @Test
+    void createScheduledFlight_fails_when_Airplane_doesntExist() {
+        final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
 
-        doReturn(Optional.of(new Flight(flight.getNumber()))).when(repo).findFlight(flight.getNumber());
+        final var scheduledFlight = new ScheduledFlight();
+        scheduledFlight.setFlight(flight);
+        scheduledFlight.setAirplane(airplane);
 
-        final var exception = assertThrows(FlightAlreadyExistsException.class, () -> subject.createFlight(flight));
+        doReturn(true).when(repo).contains(flight);
+        doReturn(false).when(repo).contains(airplane);
 
-        assertEquals("A flight with number " + CORRECT_FLIGHT_NUMBER + " already exists", exception.getMessage());
+        final var exception =
+                assertThrows(IllegalArgumentException.class, () -> subject.createScheduledFlight(scheduledFlight));
+
+        assertEquals("Missing or invalid airplane!", exception.getMessage());
+    }
+
+    @Test
+    void createScheduledFlight_fails_when_Arrival_before_Departure() {
+        final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
+        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
+        final var arrival = LocalDateTime.now();
+        final var departure = LocalDateTime.now().plusHours(11);
+
+        final var scheduledFlight = new ScheduledFlight();
+        scheduledFlight.setFlight(flight);
+        scheduledFlight.setAirplane(airplane);
+        scheduledFlight.setDepartureTime(departure);
+        scheduledFlight.setArrivalTime(arrival);
+
+        doReturn(true).when(repo).contains(flight);
+        doReturn(true).when(repo).contains(airplane);
+
+        final var exception = assertThrows(
+                ArrivalBeforeDepartureException.class, () -> subject.createScheduledFlight(scheduledFlight));
+
+        assertEquals(
+                "For the given Scheduled Flight, the arrival "
+                        + arrival.toLocalTime()
+                        + " is before the departure "
+                        + departure.toLocalTime(),
+                exception.getMessage());
+    }
+    // endregion createScheduledFlight Tests
+
+    @Test
+    void getScheduledFlights_calls_not_found_repository() {
+        final var expectedScheduledFlights = subject.getScheduledFlights();
+        assertTrue(expectedScheduledFlights.isEmpty());
+    }
+
+    @Test
+    void findScheduledFlight_calls_found_repository() {
+        final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
+        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
+        final var departure = LocalDateTime.now();
+        final var arrival = LocalDateTime.now().plusHours(11);
+
+        final var scheduledFlight = new ScheduledFlight();
+        scheduledFlight.setFlight(flight);
+        scheduledFlight.setAirplane(airplane);
+        scheduledFlight.setDepartureTime(departure);
+        scheduledFlight.setArrivalTime(arrival);
+
+        doReturn(Optional.of(scheduledFlight))
+                .when(repo)
+                .findScheduledFlight(flight.getNumber(), departure.toLocalDate());
+
+        final var expectedScheduledFlight = subject.findScheduledFlight(flight.getNumber(), departure.toLocalDate());
+        verify(repo, times(1)).findScheduledFlight(flight.getNumber(), departure.toLocalDate());
+
+        assertTrue(expectedScheduledFlight.isPresent());
+    }
+
+    @Test
+    void findScheduledFlight_calls_not_found_repository() {
+        final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
+        final var departure = LocalDateTime.now();
+
+        final var expectedScheduledFlight = subject.findScheduledFlight(flight.getNumber(), departure.toLocalDate());
+        verify(repo, times(1)).findScheduledFlight(flight.getNumber(), departure.toLocalDate());
+
+        assertTrue(expectedScheduledFlight.isEmpty());
     }
 
     @ParameterizedTest(name = "isOverlapping([{0}, {1}], [{2}, {3}]) expects {4}")

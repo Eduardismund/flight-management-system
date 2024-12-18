@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * The {@code ScheduledFlight} class represents a scheduled flight entity in the flight management
@@ -26,6 +27,8 @@ public class ScheduledFlight implements Serializable {
     private Airplane airplane;
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
+
+    @ToString.Exclude
     private Map<Seat, Booking> bookings = new HashMap<>();
 
     public List<Seat> getAvailableSeats() {

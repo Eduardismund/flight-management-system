@@ -9,7 +9,11 @@ The core functionality revolves around managing flight operations, including the
 * Add a scheduled flight
 * Add a booking
 
-Data is stored both in memory and via file serialization, demonstrating the persistence of information through serialization and deserialization processes.
+Data is stored either:
+* in [memory](src/main/java/ro/eduardismund/flightmgmt/repo/InmemFlightManagementRepository.java)
+  * with [file serialization](src/main/java/ro/eduardismund/flightmgmt/repo/JavaSerializationFlightManagementPersistenceManager.java), demonstrating the persistence of information through serialization and deserialization processes.
+* in [RDBMS](src/main/java/ro/eduardismund/flightmgmt/repo/JdbcFlightManagementRepository.java)
+  * in order to initialize MS SQL Server Database run the scripts: [database.sql](sql/database.sql), [schema.sql](sql/schema.sql)
 
 Gradle integrates tools like Checkstyle, PMD, Spotless, and SpotBugs to ensure code quality, adherence to standards, and maintainability.
 

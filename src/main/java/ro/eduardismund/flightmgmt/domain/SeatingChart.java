@@ -36,6 +36,17 @@ public class SeatingChart implements Serializable {
     }
 
     /**
+     * Constructs a {@code SeatingChart} object with the specified seats.
+     *
+     * @param seatsCount the number of seats in the seating chart
+     * @param seats a set containing the seats in the seating chart
+     */
+    public SeatingChart(int seatsCount, Set<Seat> seats) {
+        this.seatsCount = seatsCount;
+        this.seats = seats;
+    }
+
+    /**
      * Initializes the seating chart with the specified number of rows and seats per row. By default,
      * the first three rows are considered business class, while the remaining rows are considered
      * economy class.

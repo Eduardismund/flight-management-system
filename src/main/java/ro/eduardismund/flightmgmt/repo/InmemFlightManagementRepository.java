@@ -33,22 +33,18 @@ public class InmemFlightManagementRepository implements FlightManagementReposito
     private List<Booking> bookings = new ArrayList<>();
     private List<Airplane> airplanes = new ArrayList<>();
 
-    @Override
     public void setBookings(List<Booking> bookings) {
         this.bookings = new ArrayList<>(bookings);
     }
 
-    @Override
     public void setAirplanes(List<Airplane> airplanes) {
         this.airplanes = new ArrayList<>(airplanes);
     }
 
-    @Override
     public void setFlights(List<Flight> flights) {
         this.flights = new ArrayList<>(flights);
     }
 
-    @Override
     public void setScheduledFlights(List<ScheduledFlight> scheduledFlights) {
         this.scheduledFlights = new ArrayList<>(scheduledFlights);
     }
@@ -95,20 +91,6 @@ public class InmemFlightManagementRepository implements FlightManagementReposito
     public void addScheduledFlight(ScheduledFlight scheduledFlight) {
         scheduledFlights.add(scheduledFlight);
         flush();
-    }
-
-    @Override
-    public Optional<ScheduledFlight> findScheduledFlight(ScheduledFlight scheduledFlight) {
-        return scheduledFlights.stream()
-                .filter(scheduledFlight1 -> scheduledFlight
-                                .getFlight()
-                                .getNumber()
-                                .equals(scheduledFlight1.getFlight().getNumber())
-                        && scheduledFlight
-                                .getAirplane()
-                                .getIdNumber()
-                                .equals(scheduledFlight1.getAirplane().getIdNumber()))
-                .findAny();
     }
 
     @Override
@@ -168,9 +150,8 @@ public class InmemFlightManagementRepository implements FlightManagementReposito
         return Collections.unmodifiableList(scheduledFlights); // Return an unmodifiable list
     }
 
-    @Override
     public List<Booking> getBookings() {
-        return Collections.unmodifiableList(bookings); // Return an unmodifiable list
+        return Collections.unmodifiableList(bookings);
     }
 
     private void flush() {

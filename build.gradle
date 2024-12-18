@@ -12,6 +12,7 @@ plugins {
 pitest {
     junit5PluginVersion = '1.2.0'
     targetClasses = ['ro.eduardismund.flightmgmt.*']
+    excludedClasses = ['ro.eduardismund.flightmgmt.app.App']
     targetTests = ['ro.eduardismund.flightmgmt.*']
     mutationThreshold = 100
     outputFormats = ['HTML']
@@ -37,13 +38,19 @@ jar {
     }
 }
 
+configurations {
+    testCompileOnly.extendsFrom compileOnly
+    testAnnotationProcessor.extendsFrom annotationProcessor
+}
+
 dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.34'
-    compileOnly 'com.google.code.findbugs:findbugs:3.0.1'
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
 
 }
 
@@ -84,11 +91,15 @@ def configureClassDirectories(task) {
     task.classDirectories.setFrom(
             files(task.classDirectories.files.collect {
                 fileTree(dir: it, exclude: [
-                        '**/ro/eduardismund/flightmgmt/cli/**', // Exclude cli directory
-                        '**/ro/eduardismund/flightmgmt/app/**'  // Exclude app directory
+//                        '**/ro/eduardismund/flightmgmt/cli/**', // Exclude cli directory
+                          '**/ro/eduardismund/flightmgmt/app/App.class'  // Exclude app directory
                 ])
             })
     )
+}
+
+jacoco {
+    toolVersion = '0.8.12'
 }
 
 jacocoTestReport {

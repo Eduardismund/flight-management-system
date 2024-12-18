@@ -174,6 +174,9 @@ public class Service {
     public List<ScheduledFlight> getScheduledFlights() {
         return repository.getScheduledFlights();
     }
+    //    public List<Booking> getBookings() {
+    //        return repository.get();
+    //    }
 
     /**
      * Finds a scheduled flight in the repository by flight number and date.

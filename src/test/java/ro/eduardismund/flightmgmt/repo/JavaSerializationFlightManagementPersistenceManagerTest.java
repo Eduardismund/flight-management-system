@@ -49,8 +49,7 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
         final var objects = mock(InmemFlightManagementPersistenceManager.Objects.class);
         subject.dump(objects);
         assertTrue(Files.exists(filePath), "The dump file should exist.");
-        assertTrue(Files.size(filePath) > 0, "The dump file should not be empty.");
-
+        assertTrue(Files.size(filePath) > 100, "The dump file should not be empty.");
         Files.delete(filePath);
     }
 

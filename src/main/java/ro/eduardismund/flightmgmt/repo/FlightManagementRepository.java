@@ -16,6 +16,11 @@ import ro.eduardismund.flightmgmt.domain.ScheduledFlight;
 public interface FlightManagementRepository {
 
     /**
+     * Initializes the repository.
+     */
+    default void init() {}
+
+    /**
      * Adds a new flight to the repository.
      *
      * @param flight the flight to be added
@@ -45,14 +50,6 @@ public interface FlightManagementRepository {
      * @param scheduledFlight the scheduled flight to be added
      */
     void addScheduledFlight(ScheduledFlight scheduledFlight);
-
-    /**
-     * Finds a specific scheduled flight by its details.
-     *
-     * @param scheduledFlight the scheduled flight to find
-     * @return an {@code Optional} containing the scheduled flight if found, or empty if not found
-     */
-    Optional<ScheduledFlight> findScheduledFlight(ScheduledFlight scheduledFlight);
 
     /**
      * Finds a scheduled flight by its flight number and date.
@@ -121,39 +118,4 @@ public interface FlightManagementRepository {
      * @return a list of all scheduled flights
      */
     List<ScheduledFlight> getScheduledFlights();
-
-    /**
-     * Retrieves all bookings stored in the repository.
-     *
-     * @return a list of all bookings
-     */
-    List<Booking> getBookings();
-
-    /**
-     * Replaces the current list of airplanes in the repository with a new list.
-     *
-     * @param airplanes the new list of airplanes
-     */
-    void setAirplanes(List<Airplane> airplanes);
-
-    /**
-     * Replaces the current list of flights in the repository with a new list.
-     *
-     * @param flights the new list of flights
-     */
-    void setFlights(List<Flight> flights);
-
-    /**
-     * Replaces the current list of scheduled flights in the repository with a new list.
-     *
-     * @param scheduledFlights the new list of scheduled flights
-     */
-    void setScheduledFlights(List<ScheduledFlight> scheduledFlights);
-
-    /**
-     * Replaces the current list of bookings in the repository with a new list.
-     *
-     * @param bookings the new list of bookings
-     */
-    void setBookings(List<Booking> bookings);
 }

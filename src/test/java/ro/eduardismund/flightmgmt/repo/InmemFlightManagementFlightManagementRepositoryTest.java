@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -88,8 +87,9 @@ class InmemFlightManagementFlightManagementRepositoryTest {
     public void findFlight_found_flight() {
         final var expectedFlight = new Flight(CORRECT_FLIGHT_NUMBER);
         repository.addFlight(expectedFlight);
-        final var foundFlight = repository.findFlight(CORRECT_FLIGHT_NUMBER).get();
-        assertEquals(expectedFlight, foundFlight);
+        final var actualFlight = repository.findFlight(CORRECT_FLIGHT_NUMBER);
+        assertTrue(actualFlight.isPresent());
+        assertEquals(expectedFlight, actualFlight.get());
     }
 
     @Test
@@ -98,67 +98,6 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         repository.addFlight(expectedFlight);
         final var foundFlight = repository.findFlight(CORRECT_FLIGHT_NUMBER);
         assertFalse(foundFlight.isPresent());
-    }
-
-    @Test
-    public void findScheduledFlight_with_correct_IdNumber_and_correct_FlightId() {
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
-        scheduledFlight.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
-
-        repository.addScheduledFlight(scheduledFlight);
-
-        final var scheduledFlight1 = new ScheduledFlight();
-        scheduledFlight1.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
-        scheduledFlight1.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
-
-        assertTrue(repository.findScheduledFlight(scheduledFlight1).isPresent());
-    }
-
-    @Test
-    public void findScheduledFlight_with_wrong_IdNumber_and_wrong_FlightId() {
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
-        scheduledFlight.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
-
-        repository.addScheduledFlight(scheduledFlight);
-
-        final var scheduledFlight1 = new ScheduledFlight();
-        scheduledFlight1.setAirplane(new Airplane("A124"));
-        scheduledFlight1.setFlight(new Flight(INCORRECT_FLIGHT_NUMBER));
-
-        assertFalse(repository.findScheduledFlight(scheduledFlight1).isPresent());
-    }
-
-    @Test
-    public void findScheduledFlight_with_wrong_IdNumber_and_correct_FlightId() {
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
-        scheduledFlight.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
-
-        repository.addScheduledFlight(scheduledFlight);
-
-        final var scheduledFlight1 = new ScheduledFlight();
-        scheduledFlight1.setAirplane(new Airplane(INCORRECT_AIRPLANE_NUMBER));
-        scheduledFlight1.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
-
-        assertFalse(repository.findScheduledFlight(scheduledFlight1).isPresent());
-    }
-
-    @Test
-    public void findScheduledFlight_with_correct_IdNumber_and_wrong_FlightId() {
-        final var scheduledFlight = new ScheduledFlight();
-        scheduledFlight.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
-        scheduledFlight.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
-
-        repository.addScheduledFlight(scheduledFlight);
-
-        final var scheduledFlight1 = new ScheduledFlight();
-        scheduledFlight1.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
-        scheduledFlight1.setFlight(new Flight(INCORRECT_FLIGHT_NUMBER));
-
-        final var actualScheduledFlight = repository.findScheduledFlight(scheduledFlight1);
-        assertFalse(actualScheduledFlight.isPresent());
     }
 
     @Test
@@ -199,7 +138,9 @@ class InmemFlightManagementFlightManagementRepositoryTest {
     public void findAirplane_found_airplane() {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
         repository.addAirplane(airplane);
-        assertEquals(repository.findAirplane(CORRECT_AIRPLANE_NUMBER).get(), airplane);
+        final var actualAirplane = repository.findAirplane(CORRECT_AIRPLANE_NUMBER);
+        assertTrue(actualAirplane.isPresent());
+        assertEquals(airplane, actualAirplane.get());
     }
 
     @Test
@@ -212,15 +153,14 @@ class InmemFlightManagementFlightManagementRepositoryTest {
     @Test
     public void contains_airplane() {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
-        repository.addAirplane(airplane);
-        final var airplane1 = airplane;
-        assertTrue(repository.contains(airplane1));
+        repository.setAirplanes(List.of(airplane));
+        assertTrue(repository.contains(airplane));
     }
 
     @Test
     public void doesnt_contain_airplane() {
         final var airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
-        repository.addAirplane(airplane);
+        repository.setAirplanes(List.of(airplane));
         final var airplane1 = new Airplane(INCORRECT_AIRPLANE_NUMBER);
         assertFalse(repository.contains(airplane1));
     }
@@ -228,15 +168,14 @@ class InmemFlightManagementFlightManagementRepositoryTest {
     @Test
     public void contains_flight() {
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
-        repository.addFlight(flight);
-        final var flight1 = flight;
-        assertTrue(repository.contains(flight1));
+        repository.setFlights(List.of(flight));
+        assertTrue(repository.contains(flight));
     }
 
     @Test
     public void doesnt_contain_flight() {
         final var flight = new Flight(CORRECT_FLIGHT_NUMBER);
-        repository.addFlight(flight);
+        repository.setFlights(List.of(flight));
         final var flight1 = new Flight(INCORRECT_FLIGHT_NUMBER);
         assertFalse(repository.contains(flight1));
     }
@@ -301,7 +240,7 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         repository.addScheduledFlight(scheduledFlight);
 
         final var foundScheduledFlight = repository.findScheduledFlight(
-                CORRECT_FLIGHT_NUMBER, LocalDate.now().plus(1, ChronoUnit.MONTHS));
+                CORRECT_FLIGHT_NUMBER, LocalDate.now().plusMonths(1));
 
         assertFalse(foundScheduledFlight.isPresent());
     }
@@ -315,7 +254,7 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         repository.addScheduledFlight(scheduledFlight);
 
         final var foundScheduledFlight = repository.findScheduledFlight(
-                INCORRECT_FLIGHT_NUMBER, LocalDate.now().plus(1, ChronoUnit.MONTHS));
+                INCORRECT_FLIGHT_NUMBER, LocalDate.now().plusMonths(1));
 
         assertFalse(foundScheduledFlight.isPresent());
     }
@@ -343,7 +282,7 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         scheduledFlight.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
         scheduledFlight.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
         final var date = LocalDateTime.now();
-        scheduledFlight.setDepartureTime(date.plus(1, ChronoUnit.MONTHS));
+        scheduledFlight.setDepartureTime(date.plusMonths(1));
         repository.addScheduledFlight(scheduledFlight);
         List<ScheduledFlight> expectedFlights = new ArrayList<>();
         expectedFlights.add(scheduledFlight);
@@ -360,7 +299,7 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         scheduledFlight.setFlight(new Flight(CORRECT_FLIGHT_NUMBER));
         scheduledFlight.setAirplane(new Airplane(CORRECT_AIRPLANE_NUMBER));
         final var date = LocalDateTime.now();
-        scheduledFlight.setDepartureTime(date.plus(1, ChronoUnit.MONTHS));
+        scheduledFlight.setDepartureTime(date.plusMonths(1));
         repository.addScheduledFlight(scheduledFlight);
         List<ScheduledFlight> expectedFlights = new ArrayList<>();
         expectedFlights.add(scheduledFlight);
