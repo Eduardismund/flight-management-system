@@ -4,17 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -53,6 +43,7 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
         Files.delete(filePath);
     }
 
+    @SuppressWarnings("resource")
     @Test
     void dump_throws_IOException() throws IOException {
         final var objects = mock(InmemFlightManagementPersistenceManager.Objects.class);
@@ -98,6 +89,14 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
 
             verify(subjectSpy, never()).copyObjects(any(), any());
         }
+    }
+
+    @Test
+    void doWithInputStream_fileExists() {
+        final var subject = new JavaSerializationFlightManagementPersistenceManager(Path.of("non-existent"));
+        final var consumer = mockConsumerOis();
+        subject.doWithInputStream(consumer);
+        verifyNoInteractions(consumer);
     }
 
     @Test

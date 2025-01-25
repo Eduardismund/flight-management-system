@@ -59,6 +59,9 @@ public class JavaSerializationFlightManagementPersistenceManager implements Inme
 
     @SneakyThrows
     void doWithInputStream(Consumer<ObjectInputStream> consumer) {
+        if (!filePath.toFile().exists()) {
+            return;
+        }
         try (final var in = Files.newInputStream(filePath)) {
             try (final var objectOutputStream = new ObjectInputStream(in)) {
                 consumer.accept(objectOutputStream);

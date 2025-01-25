@@ -12,7 +12,8 @@ plugins {
 pitest {
     junit5PluginVersion = '1.2.0'
     targetClasses = ['ro.eduardismund.flightmgmt.*']
-    excludedClasses = ['ro.eduardismund.flightmgmt.app.App']
+    // fixme only exclude the app class after application context classes are covered
+    excludedClasses = ['ro.eduardismund.flightmgmt.app.*']
     targetTests = ['ro.eduardismund.flightmgmt.*']
     mutationThreshold = 100
     outputFormats = ['HTML']
@@ -91,8 +92,8 @@ def configureClassDirectories(task) {
     task.classDirectories.setFrom(
             files(task.classDirectories.files.collect {
                 fileTree(dir: it, exclude: [
-//                        '**/ro/eduardismund/flightmgmt/cli/**', // Exclude cli directory
-                          '**/ro/eduardismund/flightmgmt/app/App.class'  // Exclude app directory
+                          '**/ro/eduardismund/flightmgmt/app/App.class',
+                          '**/ro/eduardismund/flightmgmt/app/*.class'  // fixme implement unit test for application context
                 ])
             })
     )

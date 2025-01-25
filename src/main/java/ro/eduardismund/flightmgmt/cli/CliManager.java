@@ -21,7 +21,7 @@ public class CliManager {
     private final PrintStream out;
     private final Scanner scanner;
 
-    CliManager println(String message) {
+    public CliManager println(String message) {
         out.println(message);
         return this;
     }
@@ -111,11 +111,11 @@ public class CliManager {
         return this;
     }
 
-    int readInt() {
+    public int readInt() {
         return scanner.nextInt();
     }
 
-    String readLine() {
+    public String readLine() {
         return scanner.nextLine();
     }
 }
