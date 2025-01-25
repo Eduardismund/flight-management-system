@@ -1,12 +1,14 @@
 package ro.eduardismund.flightmgmt.app;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.Scanner;
 import javax.sql.DataSource;
+
 import lombok.SneakyThrows;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
 import ro.eduardismund.flightmgmt.cli.CliManager;
@@ -50,40 +52,6 @@ public class App {
         return dataSource;
     }
 
-    /**
-     * It initializes the repository and provides a menu for the user to create and manage flights,
-     * airplanes, etc.
-     */
-    public void execute() {
-        repo.init();
-        System.out.println("Welcome to Flights Management");
-        while (true) {
-            System.out.println(
-                    """
-                    Select option:
-                    1. Create Flight
-                    2. Create Airplane
-                    3. Create Scheduled Flight
-                    4. Create Booking
-                    """);
-            final var option = scanner.nextLine();
-            switch (option) {
-                case "1":
-                    adminUi.createFlight();
-                    break;
-                case "2":
-                    adminUi.createAirplane();
-                    break;
-                case "3":
-                    adminUi.createScheduledFlight();
-                    break;
-                case "4":
-                    adminUi.createBooking();
-                    break;
-                default:
-            }
-        }
-    }
 
     /**
      * The entry point of the application It creates an instance of the {@code App} class and starts
@@ -92,6 +60,18 @@ public class App {
      * @param args command line arguments(not used)
      */
     public static void main(String[] args) {
-        new App().execute();
+
+        final var applicationContext = new ApplicationContext();
+        applicationContext.registerComponentClass(AdminCliRunnable.class);
+        applicationContext.registerComponent(new App().createDataSource());
+        applicationContext.registerComponentClass(JdbcFlightManagementRepository.class);
+        applicationContext.registerComponentClass(Service.class);
+        applicationContext.registerComponentClass(AdminUi.class);
+        applicationContext.registerComponentClass(CliManager.class);
+        applicationContext.registerComponent(System.out);
+        applicationContext.registerComponent(new Scanner(System.in, StandardCharsets.UTF_8));
+
+        applicationContext.processComponents();
+        applicationContext.run(args);
     }
 }
