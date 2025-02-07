@@ -23,6 +23,11 @@ public class CliManager {
     public PrintStream out;
     public Scanner scanner;
 
+    /**
+     * Print a String.
+     *
+     * @param message the string to print
+     */
     public CliManager println(String message) {
         out.println(message);
         return this;
@@ -68,9 +73,9 @@ public class CliManager {
     /**
      * function that uses a template in order to find a flight or an airplane in the repository.
      *
-     * @param idName of the required entity
+     * @param idName     of the required entity
      * @param findMethod of the required entity
-     * @param <T> Flight/Airplane
+     * @param <T>        Flight/Airplane
      * @return either a Flight or an Airplane
      */
     public <T> T readById(String idName, Function<String, Optional<T>> findMethod) {
@@ -97,12 +102,15 @@ public class CliManager {
      * @param entities the list to print
      */
     CliManager printAll(Iterable<?> entities) {
-        for (Object entity : entities) {
+        for (final Object entity : entities) {
             println(entity.toString());
         }
         return this;
     }
 
+    /**
+     * Prints all entities in a collection with a title and an empty message if needed.
+     */
     CliManager printAll(Collection<?> entities, String title, String isEmptyMessage) {
         if (entities.isEmpty()) {
             println(isEmptyMessage);
@@ -113,11 +121,24 @@ public class CliManager {
         return this;
     }
 
+    /**
+     * Reads an integer from the user.
+     */
     public int readInt() {
         return scanner.nextInt();
     }
 
+    /**
+     * Reads a line from the user.
+     */
     public String readLine() {
         return scanner.nextLine();
+    }
+
+    /**
+     * Prints exception details.
+     */
+    public void printException(Throwable throwable) {
+        throwable.printStackTrace(out);
     }
 }

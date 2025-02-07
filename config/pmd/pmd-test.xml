@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!-- My preferred PMD configuration. -->
+<ruleset name="Test Ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <description>
+        PMD configuration
+    </description>
+
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="UnitTestAssertionsShouldIncludeMessage"/>
+        <exclude name="UnitTestContainsTooManyAsserts"/>
+        <exclude name="CheckResultSet"/>
+        <exclude name="AvoidUsingHardCodedIP"/>
+
+
+    </rule>
+
+    <rule ref="category/java/codestyle.xml">
+        <!-- Forcing only one return is a mistake. It allows code to be cleaner -->
+        <!-- if you allow for multiple returns. -->
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="UseExplicitTypes"/>
+        <!-- Requiring a constructor clutters up the code and doesn't add a lot of value. -->
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="TooManyStaticImports"/>
+        <exclude name="LinguisticNaming"/>
+    </rule>
+    <rule ref="category/java/codestyle.xml/ClassNamingConventions">
+        <properties>
+            <!-- I don't like forcing certain classes to be name Factory or Util. The pattern is useful -->
+            <!-- for other types of classes as well. -->
+            <property name="utilityClassPattern" value="[A-Z][a-zA-Z0-9]*"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/ShortMethodName">
+        <properties>
+            <!-- "of" is a ver common function name. -->
+            <property name="minimum" value="2"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/FieldNamingConventions">
+        <properties>
+            <property name="publicConstantPattern" value="[A-Z][A-Z_0-9]*"/>
+            <property name="constantPattern" value="[A-Z][A-Z_0-9]*"/>
+            <property name="enumConstantPattern" value="[A-Z][A-Z_0-9]*"/>
+            <property name="finalFieldPattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="staticFieldPattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="defaultFieldPattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="exclusions" value="serialVersionUID,serialPersistentFields"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+        <properties>
+            <!-- I like have underscores in my test names. This allows for that. -->
+            <property name="junit5TestPattern" value="[a-z][a-zA-Z0-9_]*"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/LongVariable">
+        <properties>
+            <property name="minimum" value="20"/>
+        </properties>
+    </rule>
+
+
+    <rule ref="category/java/design.xml">
+        <!-- As much as I theoretically like the Law of Demeter, the test for it hasn't kept up -->
+        <!-- with how a lot of coding is done. It can't handle stream processing. -->
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="LawOfDemeter"/>
+
+        <!-- This rule has to be configured explicitly. There are no defaults. Since there is nothing -->
+        <!-- I want to put in here, I excluded it to remove a warning during build. See -->
+        <!-- https://pmd.github.io/latest/pmd_rules_java_design.html#loosepackagecoupling for how to configure -->
+        <!-- this rule if you want to use 0it. -->
+        <exclude name="LoosePackageCoupling"/>
+    </rule>
+    <rule ref="category/java/design.xml/TooManyMethods">
+        <properties>
+            <property name="maxmethods" value="50"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/documentation.xml">
+        <exclude name="CommentRequired"/>
+    </rule>
+
+    <rule ref="category/java/documentation.xml/CommentSize">
+        <properties>
+            <!-- 6 lines is too restrictive for comment length as it includes the Javadoc comments. -->
+            <property name="maxLines" value="30"/>
+            <!-- I want the line size to match the code requirement. -->
+            <property name="maxLineLength" value="150"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="DontCallThreadRun"/>
+        <exclude name="DoNotUseThreads"/>
+        <exclude name="UseConcurrentHashMap"/>
+    </rule>
+
+    <rule ref="category/java/performance.xml"/>
+
+    <rule ref="category/java/security.xml"/>
+
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="CloseResource"/>
+    </rule>
+</ruleset>

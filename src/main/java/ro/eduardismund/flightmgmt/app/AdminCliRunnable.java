@@ -6,6 +6,10 @@ import ro.eduardismund.flightmgmt.cli.AdminUi;
 import ro.eduardismund.flightmgmt.cli.CliManager;
 import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
 
+/**
+ * CLI-based Flight Management application that allows the user to manage flights,
+ * airplanes, scheduled flights, and bookings through a simple menu-driven interface.
+ */
 @SuppressFBWarnings("EI_EXPOSE_REP2")
 @RequiredArgsConstructor
 public class AdminCliRunnable implements ApplicationRunnable {
@@ -13,6 +17,12 @@ public class AdminCliRunnable implements ApplicationRunnable {
     private final CliManager cliManager;
     private final AdminUi adminUi;
 
+    /**
+     *Executes the Flight Management application, initializing necessary components
+     * and provides a CLI for managing flights, airplanes, scheduled flights and bookings.
+     *
+     * @param args CLI arguments
+     */
     @Override
     public void run(String[] args) {
         repo.init();

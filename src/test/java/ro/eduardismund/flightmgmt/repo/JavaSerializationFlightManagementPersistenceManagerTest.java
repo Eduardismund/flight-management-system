@@ -61,7 +61,7 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
     @Test
     void copyObjectsFromInputStream() throws IOException, ClassNotFoundException {
         final var subjectSpy = spy(subject);
-        try (final var ois = mock(ObjectInputStream.class)) {
+        try (var ois = mock(ObjectInputStream.class)) {
             final var objs = mock(InmemFlightManagementPersistenceManager.Objects.class);
 
             final var readObjs = mock(InmemFlightManagementPersistenceManager.Objects.class);
@@ -78,7 +78,7 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
     @Test
     void copyObjectsFromInputStream_IOException() throws IOException, ClassNotFoundException {
         final var subjectSpy = spy(subject);
-        try (final var ois = mock(ObjectInputStream.class)) {
+        try (var ois = mock(ObjectInputStream.class)) {
             final var objs = mock(InmemFlightManagementPersistenceManager.Objects.class);
 
             final var ioEx = new IOException();
@@ -101,7 +101,7 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
 
     @Test
     void doWithInputStream() throws IOException {
-        final var objectInSerInFile = 11111L;
+        final var objectInSerInFile = 11_111L;
         setupTempFile(objectInSerInFile);
         final var consumer = mockConsumerOis();
 
@@ -128,7 +128,7 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
 
         final var spySubject = spy(subject);
 
-        try (final var objectInputStream = mock(ObjectInputStream.class)) {
+        try (var objectInputStream = mock(ObjectInputStream.class)) {
 
             doReturn(sourceObjects).when(objectInputStream).readObject();
 
@@ -174,8 +174,8 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
         final var targetBookings = mock(List.class);
         final var sourceBookings = mock(List.class);
 
-        final var sourceScheduledFlights = mock(List.class);
-        final var targetScheduledFlights = mock(List.class);
+        final var sourceSf = mock(List.class);
+        final var targetSf = mock(List.class);
 
         when(sourceObjects.airplanes()).thenReturn(sourceAirplanes);
         when(targetObjects.airplanes()).thenReturn(targetAirplanes);
@@ -186,8 +186,8 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
         when(sourceObjects.bookings()).thenReturn(sourceBookings);
         when(targetObjects.bookings()).thenReturn(targetBookings);
 
-        when(sourceObjects.scheduledFlights()).thenReturn(sourceScheduledFlights);
-        when(targetObjects.scheduledFlights()).thenReturn(targetScheduledFlights);
+        when(sourceObjects.scheduledFlights()).thenReturn(sourceSf);
+        when(targetObjects.scheduledFlights()).thenReturn(targetSf);
 
         subject.copyObjects(sourceObjects, targetObjects);
 
@@ -197,8 +197,8 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
         verify(targetFlights).clear();
         verify(targetFlights).addAll(sourceFlights);
 
-        verify(targetScheduledFlights).clear();
-        verify(targetScheduledFlights).addAll(sourceScheduledFlights);
+        verify(targetSf).clear();
+        verify(targetSf).addAll(sourceSf);
 
         verify(targetBookings).clear();
         verify(targetBookings).addAll(sourceBookings);
@@ -206,8 +206,7 @@ class JavaSerializationFlightManagementPersistenceManagerTest {
 
     @Test
     void doWithInputStream_IOException() throws IOException {
-        final var objectInSerInFile = 11111L;
-        setupTempFile(objectInSerInFile);
+        setupTempFile(11_111L);
 
         final var consumer = mockConsumerOis();
 

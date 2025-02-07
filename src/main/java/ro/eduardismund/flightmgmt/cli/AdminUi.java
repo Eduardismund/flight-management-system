@@ -15,8 +15,8 @@ import ro.eduardismund.flightmgmt.service.AirplaneAlreadyExistsException;
 import ro.eduardismund.flightmgmt.service.AirplaneAlreadyScheduledException;
 import ro.eduardismund.flightmgmt.service.ArrivalBeforeDepartureException;
 import ro.eduardismund.flightmgmt.service.FlightAlreadyExistsException;
+import ro.eduardismund.flightmgmt.service.FlightManagementService;
 import ro.eduardismund.flightmgmt.service.ScheduledFlightAlreadyExistsException;
-import ro.eduardismund.flightmgmt.service.Service;
 
 /**
  * Administration Command Line Interface.
@@ -27,7 +27,7 @@ public class AdminUi {
     /**
      * Services called by the Admin UI.
      */
-    private final Service service;
+    private final FlightManagementService service;
 
     private final CliManager cliManager;
 
@@ -36,17 +36,18 @@ public class AdminUi {
      */
     public void createBooking() {
 
-        String flightNumber = cliManager.println("Enter flight number: ").readLine();
+        final String flightNumber = cliManager.println("Enter flight number: ").readLine();
 
-        LocalDate date = LocalDate.from(cliManager.readDate("Insert the date in which you want to book your flight: "));
+        final LocalDate date =
+                LocalDate.from(cliManager.readDate("Insert the date in which you want to book your flight: "));
 
-        Optional<ScheduledFlight> scheduledFlightOptional = service.findScheduledFlight(flightNumber, date);
-        if (scheduledFlightOptional.isEmpty()) {
+        final Optional<ScheduledFlight> scheduledFlightOpt = service.findScheduledFlight(flightNumber, date);
+        if (scheduledFlightOpt.isEmpty()) {
             cliManager.println("Flight " + flightNumber + " not found on " + date);
             return;
         }
 
-        ScheduledFlight scheduledFlight = scheduledFlightOptional.get();
+        final ScheduledFlight scheduledFlight = scheduledFlightOpt.get();
         cliManager.println("Flight "
                 + flightNumber
                 + " is departing at: "
@@ -65,13 +66,13 @@ public class AdminUi {
 
         final Passenger passenger = new Passenger(firstName, lastName, idDocument);
 
-        int row = cliManager.println("Enter the row of the seat: ").readInt();
+        final int row = cliManager.println("Enter the row of the seat: ").readInt();
 
         final String name = cliManager.println("Enter the name of the seat: ").readLine();
 
         final Seat seat = new Seat(row, name, true);
 
-        Booking booking = new Booking();
+        final Booking booking = new Booking();
         booking.setScheduledFlight(scheduledFlight);
         booking.setPassenger(passenger);
         booking.setAssignedSeat(seat);
@@ -88,11 +89,11 @@ public class AdminUi {
     public void createFlight() {
         cliManager.printAll(service.getFlights(), "The list of Flights: ", "No Flights yet! Ooupsie!");
 
-        String num = cliManager.println("Insert a flight number: ").readLine();
+        final String num = cliManager.println("Insert a flight number: ").readLine();
 
-        String company = cliManager.println("Insert flight company: ").readLine();
+        final String company = cliManager.println("Insert flight company: ").readLine();
 
-        Flight flight = new Flight(num);
+        final Flight flight = new Flight(num);
 
         flight.setCompany(company);
         try {
@@ -111,9 +112,9 @@ public class AdminUi {
     public void createAirplane() {
         cliManager.printAll(service.getAirplanes(), "The list of Airplanes: ", "No Airplanes yet!");
 
-        String idNumber = cliManager.println("Insert ID number: ").readLine();
+        final String idNumber = cliManager.println("Insert ID number: ").readLine();
 
-        String model = cliManager.println("Insert model: ").readLine();
+        final String model = cliManager.println("Insert model: ").readLine();
 
         final var rows = cliManager.println("Number of rows: ").readInt();
 
@@ -143,15 +144,15 @@ public class AdminUi {
         cliManager.printAll(service.getFlights(), "The list of Flights: ", "No Flights yet! Ooupsie!");
         cliManager.printAll(service.getAirplanes(), "The list of Airplanes: ", "No Airplanes yet!");
 
-        Flight flight = cliManager.readById("flight", service::findFlight);
+        final Flight flight = cliManager.readById("flight", service::findFlight);
 
-        Airplane airplane = cliManager.readById("airplane", service::findAirplane);
+        final Airplane airplane = cliManager.readById("airplane", service::findAirplane);
 
-        LocalDateTime departure = cliManager.readDateTime("departure");
+        final LocalDateTime departure = cliManager.readDateTime("departure");
 
-        LocalDateTime arrival = cliManager.readDateTime("arrival");
+        final LocalDateTime arrival = cliManager.readDateTime("arrival");
 
-        ScheduledFlight scheduledFlight = new ScheduledFlight();
+        final ScheduledFlight scheduledFlight = new ScheduledFlight();
 
         scheduledFlight.setFlight(flight);
         scheduledFlight.setAirplane(airplane);

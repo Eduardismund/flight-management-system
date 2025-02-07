@@ -6,8 +6,11 @@ import static org.mockito.Mockito.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.util.Properties;
 import java.util.Set;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +20,30 @@ class ApplicationContextTest {
     @BeforeEach
     void setUp() {
         appCon = new ApplicationContext();
+    }
+
+    @SneakyThrows
+    @Test
+    void putComponent_throwsException() {
+        appCon = spy(appCon);
+        final var instantiationEx = new InstantiationException();
+        doThrow(instantiationEx).when(appCon).callConstructor(any());
+        assertEquals(
+                instantiationEx, assertThrows(InstantiationException.class, () -> appCon.putComponent(any(), any())));
+    }
+
+    @SneakyThrows
+    @Test
+    void callConstructor_throwsException() {
+        final var params = new Parameter[] {};
+        final var constructor = mock(Constructor.class);
+        doReturn(1).when(constructor).getParameterCount();
+        doReturn(params).when(constructor).getParameters();
+        final var instantiationEx = new InstantiationException();
+        doThrow(instantiationEx).when(constructor).newInstance(any());
+
+        assertEquals(
+                instantiationEx, assertThrows(InstantiationException.class, () -> appCon.callConstructor(constructor)));
     }
 
     @Test
@@ -49,9 +76,6 @@ class ApplicationContextTest {
     }
 
     @Test
-    void processComponents() {}
-
-    @Test
     void run_isInstance() {
 
         final var appRunnable1 = mock(ApplicationRunnable.class);
@@ -78,9 +102,6 @@ class ApplicationContextTest {
     }
 
     @Test
-    void getProperties() {}
-
-    @Test
     void loadConfigFileTest() throws IOException {
         var sampleProperties = "key1=value1\nkey2=value2";
         var buffer = new BufferedReader(new StringReader(sampleProperties));
@@ -91,8 +112,8 @@ class ApplicationContextTest {
 
         final var properties = appCon.loadConfigFile();
 
-        assertEquals("value1", properties.get("key1"));
-        assertEquals("value2", properties.get("key2"));
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value2", properties.getProperty("key2"));
     }
 
     @Test
@@ -226,7 +247,7 @@ class ApplicationContextTest {
     @Test
     void processComponents_instanceOfComponentFactory() {
         appCon = spy(ApplicationContext.class);
-        doReturn(new Properties()).when(appCon).loadConfigFile();
+        doReturn(new PropertiesEnvironment(new Properties())).when(appCon).loadConfigFile();
 
         final var component1 = new ParentComponent();
         final var component2 = new ChildComponent();
@@ -235,24 +256,24 @@ class ApplicationContextTest {
         appCon.components.put(ChildComponent.class, component2);
 
         appCon.componentClasses.add(
-                new ApplicationContext.ComponentCondition(ComponentFactoryComponent.class, Condition.alwaysTrue()));
-        appCon.componentClasses.add(
                 new ApplicationContext.ComponentCondition(DepOfMultipleParamsComponent.class, Condition.alwaysTrue()));
+        appCon.componentClasses.add(
+                new ApplicationContext.ComponentCondition(ComponentFactoryComponent.class, Condition.alwaysTrue()));
 
         appCon.processComponents();
 
         final var compByFactory = appCon.components.get(MultipleParametersComponent.class);
         assertNotNull(compByFactory);
-        final var dependentOnCompByFactory =
+        final var depOnCompByFactory =
                 (DepOfMultipleParamsComponent) appCon.components.get(DepOfMultipleParamsComponent.class);
-        assertNotNull(dependentOnCompByFactory);
-        assertSame(compByFactory, dependentOnCompByFactory.dep);
+        assertNotNull(depOnCompByFactory);
+        assertSame(compByFactory, depOnCompByFactory.dep);
     }
 
     @Test
     void processComponents_instanceOfComponentFactory_conditionNotMet() {
         appCon = spy(ApplicationContext.class);
-        doReturn(new Properties()).when(appCon).loadConfigFile();
+        doReturn(new PropertiesEnvironment(new Properties())).when(appCon).loadConfigFile();
 
         final var component1 = new ParentComponent();
         final var component2 = new ChildComponent();

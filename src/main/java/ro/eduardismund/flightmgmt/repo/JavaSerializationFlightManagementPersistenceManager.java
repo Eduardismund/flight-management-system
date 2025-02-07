@@ -44,8 +44,8 @@ public class JavaSerializationFlightManagementPersistenceManager implements Inme
     @SneakyThrows
     @Override
     public void dump(Objects objects) {
-        try (final var out = createOutputStream(filePath)) {
-            try (final var objectOutputStream = new ObjectOutputStream(out)) {
+        try (var out = createOutputStream(filePath)) {
+            try (var objectOutputStream = new ObjectOutputStream(out)) {
                 objectOutputStream.writeObject(objects);
             }
         }
@@ -62,8 +62,8 @@ public class JavaSerializationFlightManagementPersistenceManager implements Inme
         if (!filePath.toFile().exists()) {
             return;
         }
-        try (final var in = Files.newInputStream(filePath)) {
-            try (final var objectOutputStream = new ObjectInputStream(in)) {
+        try (var inputStream = Files.newInputStream(filePath)) {
+            try (var objectOutputStream = new ObjectInputStream(inputStream)) {
                 consumer.accept(objectOutputStream);
             }
         }
@@ -77,23 +77,23 @@ public class JavaSerializationFlightManagementPersistenceManager implements Inme
 
     void copyObjects(Objects sourceObjects, Objects targetObjects) {
 
-        List<Airplane> targetAirplanes = targetObjects.airplanes();
-        List<Airplane> sourceAirplanes = sourceObjects.airplanes();
+        final List<Airplane> targetAirplanes = targetObjects.airplanes();
+        final List<Airplane> sourceAirplanes = sourceObjects.airplanes();
         targetAirplanes.clear();
         targetAirplanes.addAll(sourceAirplanes);
 
-        List<Flight> targetFlights = targetObjects.flights();
-        List<Flight> sourceFlights = sourceObjects.flights();
+        final List<Flight> targetFlights = targetObjects.flights();
+        final List<Flight> sourceFlights = sourceObjects.flights();
         targetFlights.clear();
         targetFlights.addAll(sourceFlights);
 
-        List<ScheduledFlight> targetScheduledFlights = targetObjects.scheduledFlights();
-        List<ScheduledFlight> sourceScheduledFlights = sourceObjects.scheduledFlights();
-        targetScheduledFlights.clear();
-        targetScheduledFlights.addAll(sourceScheduledFlights);
+        final List<ScheduledFlight> targetScheduled = targetObjects.scheduledFlights();
+        final List<ScheduledFlight> sourceScheduled = sourceObjects.scheduledFlights();
+        targetScheduled.clear();
+        targetScheduled.addAll(sourceScheduled);
 
-        List<Booking> targetBookings = targetObjects.bookings();
-        List<Booking> sourceBookings = sourceObjects.bookings();
+        final List<Booking> targetBookings = targetObjects.bookings();
+        final List<Booking> sourceBookings = sourceObjects.bookings();
         targetBookings.clear();
         targetBookings.addAll(sourceBookings);
     }
