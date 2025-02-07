@@ -11,12 +11,7 @@ import ro.eduardismund.flightmgmt.domain.Passenger;
 import ro.eduardismund.flightmgmt.domain.ScheduledFlight;
 import ro.eduardismund.flightmgmt.domain.Seat;
 import ro.eduardismund.flightmgmt.domain.SeatingChart;
-import ro.eduardismund.flightmgmt.service.AirplaneAlreadyExistsException;
-import ro.eduardismund.flightmgmt.service.AirplaneAlreadyScheduledException;
-import ro.eduardismund.flightmgmt.service.ArrivalBeforeDepartureException;
-import ro.eduardismund.flightmgmt.service.FlightAlreadyExistsException;
-import ro.eduardismund.flightmgmt.service.ScheduledFlightAlreadyExistsException;
-import ro.eduardismund.flightmgmt.service.Service;
+import ro.eduardismund.flightmgmt.service.*;
 
 /**
  * Administration Command Line Interface.
@@ -27,7 +22,7 @@ public class AdminUi {
     /**
      * Services called by the Admin UI.
      */
-    private final Service service;
+    private final FlightManagementService service;
 
     private final CliManager cliManager;
 

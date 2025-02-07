@@ -27,9 +27,9 @@ import ro.eduardismund.flightmgmt.domain.Booking;
 import ro.eduardismund.flightmgmt.domain.Flight;
 import ro.eduardismund.flightmgmt.domain.ScheduledFlight;
 import ro.eduardismund.flightmgmt.service.AirplaneAlreadyExistsException;
+import ro.eduardismund.flightmgmt.service.DefaultFlightManagementService;
 import ro.eduardismund.flightmgmt.service.FlightAlreadyExistsException;
 import ro.eduardismund.flightmgmt.service.ScheduledFlightAlreadyExistsException;
-import ro.eduardismund.flightmgmt.service.Service;
 
 @ExtendWith(MockitoExtension.class)
 class AdminUiTest {
@@ -37,7 +37,7 @@ class AdminUiTest {
     public static final String AIRPLANE_NUMBER = "A123";
 
     @Mock
-    private Service service;
+    private DefaultFlightManagementService service;
 
     @Mock
     private CliManager cliManager;

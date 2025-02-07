@@ -1,7 +1,5 @@
 package ro.eduardismund.flightmgmt.app;
 
-import java.util.Properties;
-
 public interface Condition {
     static Condition propertyEquals(String propertyName, String expectedValue) {
         return new PropertyEqualsCondition(propertyName, expectedValue);
@@ -15,5 +13,9 @@ public interface Condition {
         return new NegateCondition(this);
     }
 
-    boolean test(Properties properties);
+    boolean test(Environment properties);
+
+    default Condition or(Condition other) {
+        return new OrCondition(this, other);
+    }
 }

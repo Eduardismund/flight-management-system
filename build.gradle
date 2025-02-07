@@ -52,6 +52,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
     implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
 
 }
 

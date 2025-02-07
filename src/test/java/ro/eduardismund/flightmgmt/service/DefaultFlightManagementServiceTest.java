@@ -22,13 +22,13 @@ import ro.eduardismund.flightmgmt.domain.ScheduledFlight;
 import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
 
 @SuppressWarnings("checkstyle:MethodName")
-class ServiceTest {
+class DefaultFlightManagementServiceTest {
 
     private static final String CORRECT_AIRPLANE_NUMBER = "A123";
     private static final String CORRECT_FLIGHT_NUMBER = "ED0001";
 
     private final FlightManagementRepository repo = mock(FlightManagementRepository.class);
-    private final Service subject = new Service(repo);
+    private final DefaultFlightManagementService subject = new DefaultFlightManagementService(repo);
 
     @Test
     void createAirplane_calls_repo_addAirplane() throws AirplaneAlreadyExistsException {
@@ -360,6 +360,6 @@ class ServiceTest {
         scheduledFlight2.setDepartureTime(LocalDateTime.parse(depart2));
         scheduledFlight2.setArrivalTime(LocalDateTime.parse(arriv2));
 
-        assertEquals(expected, Service.isOverlapping(scheduledFlight, scheduledFlight2));
+        assertEquals(expected, DefaultFlightManagementService.isOverlapping(scheduledFlight, scheduledFlight2));
     }
 }

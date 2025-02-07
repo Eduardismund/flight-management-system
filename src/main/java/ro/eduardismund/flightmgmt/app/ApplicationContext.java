@@ -1,5 +1,7 @@
 package ro.eduardismund.flightmgmt.app;
 
+import static ro.eduardismund.flightmgmt.app.SystemPropertiesEnvironment.SYSTEM_PROPERTIES_ENVIRONMENT;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,7 +17,7 @@ public class ApplicationContext {
     private final Set<ComponentCondition> componentClasses = new HashSet<>();
 
     @Getter
-    private Properties properties;
+    private Environment properties;
 
     @SuppressWarnings("unused")
     public void registerComponent(Object componentInstance) {
@@ -23,12 +25,12 @@ public class ApplicationContext {
     }
 
     @SneakyThrows
-    private static Properties loadConfigFile() {
+    private static Environment loadConfigFile() {
         final var properties = new Properties();
         try (final var buffer = Files.newBufferedReader(Path.of(CONFIG_FILE))) {
             properties.load(buffer);
         }
-        return properties;
+        return new PropertiesEnvironment(properties);
     }
 
     public void registerComponentClass(Class<?> componentClass, Condition condition) {
@@ -40,7 +42,7 @@ public class ApplicationContext {
     }
 
     public void processComponents() {
-        properties = loadConfigFile();
+        properties = new CompositeEnvironment(List.of(SYSTEM_PROPERTIES_ENVIRONMENT, loadConfigFile()));
         componentClasses.stream()
                 .filter(compCond -> ComponentFactory.class.isAssignableFrom(compCond.componentClass))
                 .filter(compCond -> compCond.condition.test(properties))
