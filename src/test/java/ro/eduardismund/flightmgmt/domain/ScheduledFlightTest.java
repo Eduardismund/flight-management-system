@@ -6,26 +6,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("checkstyle:MethodName")
 class ScheduledFlightTest {
     private ScheduledFlight scheduledFlight;
-    private Airplane airplane;
-    private Flight flight;
     private Seat seat1;
     private Seat seat2;
-    private Booking booking1;
 
-    private static final String CORRECT_AIRPLANE_NUMBER = "A123";
-    private static final String CORRECT_FLIGHT_NUMBER = "ED0001";
+    private static final String CORRECT_AIRPLANE_NUM = "A123";
+    private static final String CORRECT_FLIGHT_NUM = "ED0001";
 
     @BeforeEach
     void setUp() {
-        airplane = new Airplane(CORRECT_AIRPLANE_NUMBER);
-        flight = new Flight(CORRECT_FLIGHT_NUMBER);
+        final var airplane = new Airplane(CORRECT_AIRPLANE_NUM);
+        final var flight = new Flight(CORRECT_FLIGHT_NUM);
         scheduledFlight = new ScheduledFlight();
 
         seat1 = new Seat(1, "A", true);
@@ -43,17 +39,17 @@ class ScheduledFlightTest {
     void testGetAvailableSeats_WhenNoBookings_ReturnsAllSeats() {
         scheduledFlight.setBookings(new HashMap<>());
 
-        List<Seat> availableSeats = scheduledFlight.getAvailableSeats();
+        final var availableSeats = scheduledFlight.getAvailableSeats();
 
         assertEquals(4, availableSeats.size(), "Expected 4 available seats, but got: " + availableSeats.size());
     }
 
     @Test
     void testGetAvailableSeats_WhenSomeSeatsBooked_ReturnsAvailableSeats() {
-        booking1 = new Booking();
+        final var booking1 = new Booking();
         scheduledFlight.getBookings().put(seat1, booking1);
 
-        List<Seat> availableSeats = scheduledFlight.getAvailableSeats();
+        final var availableSeats = scheduledFlight.getAvailableSeats();
 
         assertEquals(3, availableSeats.size(), "Expected 3 available seats, but got: " + availableSeats.size());
         assertTrue(availableSeats.contains(seat2), "Seat 2 should be available.");

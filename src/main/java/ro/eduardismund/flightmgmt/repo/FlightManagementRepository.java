@@ -18,7 +18,9 @@ public interface FlightManagementRepository {
     /**
      * Initializes the repository.
      */
-    default void init() {}
+    default void init() {
+        // concrete classes optionally override this method
+    }
 
     /**
      * Adds a new flight to the repository.

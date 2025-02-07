@@ -19,7 +19,7 @@ public class SeatingChart implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private static final int NUMBER_OF_BUSINESS_SEATS = 3;
+    private static final int BUSINESS_SEATS_COUNT = 3;
     private int seatsCount;
     private Set<Seat> seats = new HashSet<>();
 
@@ -57,14 +57,17 @@ public class SeatingChart implements Serializable {
     private void standardSeatingChart(int rowsCount, int seatsPerRowCount) {
         for (int i = 0; i < rowsCount; i++) {
             for (int j = 0; j < seatsPerRowCount; j++) {
-                Seat seat = new Seat(i + 1, "" + (char) ('A' + j), true);
-
-                if (i >= NUMBER_OF_BUSINESS_SEATS) {
-                    seat.setBusinessClass(false);
-                }
-
-                seats.add(seat);
+                seats.add(createStandardSeat(i, j));
             }
         }
+    }
+
+    private static Seat createStandardSeat(int row, int column) {
+        final Seat seat = new Seat(row + 1, String.valueOf((char) ('A' + column)), true);
+
+        if (row >= BUSINESS_SEATS_COUNT) {
+            seat.setBusinessClass(false);
+        }
+        return seat;
     }
 }

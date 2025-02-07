@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 class PropertyEqualsConditionTest {
@@ -12,7 +11,7 @@ class PropertyEqualsConditionTest {
 
     @Test
     void test_isTrue() {
-        final var properties = mock(Properties.class);
+        final var properties = mock(Environment.class);
         final String test = "test";
         final String propertyName = "propertyName";
         final String expected = "test";
@@ -26,7 +25,7 @@ class PropertyEqualsConditionTest {
 
     @Test
     void test_isFalse() {
-        final var properties = mock(Properties.class);
+        final var properties = mock(Environment.class);
         final String test = "test";
         final String propertyName = "propertyName";
         final String expected = "test1";

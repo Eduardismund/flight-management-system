@@ -2,10 +2,7 @@ package ro.eduardismund.flightmgmt.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.PrintStream;
 import java.time.LocalDate;
@@ -72,7 +69,7 @@ class CliManagerTest {
     @Test
     void readById() {
 
-        final var id = "flight";
+        final var label = "flight";
         final var flightId = "F123";
 
         @SuppressWarnings("unchecked")
@@ -83,13 +80,14 @@ class CliManagerTest {
         when(mockFunction.apply(INVALID)).thenReturn(Optional.empty());
         when(mockFunction.apply(flightId)).thenReturn(Optional.of(new Flight(flightId)));
 
-        final var result = manager.readById(id, mockFunction);
+        final var result = manager.readById(label, mockFunction);
 
         assertEquals(result.getNumber(), flightId);
-        verify(out, times(2)).println("Insert " + id + " number: ");
-        verify(out, times(1)).println(id + " with ID invalid not found. Please try again.");
+        verify(out, times(2)).println("Insert " + label + " number: ");
+        verify(out, times(1)).println(label + " with ID invalid not found. Please try again.");
     }
 
+    @SuppressWarnings("UnnecessaryToStringCall")
     @Test
     void printAll() {
         final var testFlight = new Flight("F123");
@@ -140,5 +138,12 @@ class CliManagerTest {
         manager.printAll(List.of(), title, isEmptyMessage);
 
         verify(out).println(isEmptyMessage);
+    }
+
+    @Test
+    void printException() {
+        final var mockThrow = mock(RuntimeException.class);
+        manager.printException(mockThrow);
+        verify(mockThrow).printStackTrace(out);
     }
 }

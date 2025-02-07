@@ -1,10 +1,12 @@
 package ro.eduardismund.flightmgmt.app;
 
-import java.util.Properties;
-
+/**
+ * {@link Condition} implementation that checks if a property equals a specified value.
+ */
 public record PropertyEqualsCondition(String propertyName, String expectedValue) implements Condition {
+
     @Override
-    public boolean test(Properties properties) {
+    public boolean test(Environment properties) {
         return properties.getProperty(propertyName).equals(expectedValue);
     }
 }

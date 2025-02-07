@@ -27,9 +27,9 @@ import ro.eduardismund.flightmgmt.domain.Booking;
 import ro.eduardismund.flightmgmt.domain.Flight;
 import ro.eduardismund.flightmgmt.domain.ScheduledFlight;
 import ro.eduardismund.flightmgmt.service.AirplaneAlreadyExistsException;
+import ro.eduardismund.flightmgmt.service.DefaultFlightManagementService;
 import ro.eduardismund.flightmgmt.service.FlightAlreadyExistsException;
 import ro.eduardismund.flightmgmt.service.ScheduledFlightAlreadyExistsException;
-import ro.eduardismund.flightmgmt.service.Service;
 
 @ExtendWith(MockitoExtension.class)
 class AdminUiTest {
@@ -37,7 +37,7 @@ class AdminUiTest {
     public static final String AIRPLANE_NUMBER = "A123";
 
     @Mock
-    private Service service;
+    private DefaultFlightManagementService service;
 
     @Mock
     private CliManager cliManager;
@@ -64,11 +64,11 @@ class AdminUiTest {
     @Test
     void createBooking_flightExists() {
 
-        final var sf = new ScheduledFlight();
-        sf.setFlight(new Flight(FLIGHT_NUMBER));
+        final var scheduledFlight = new ScheduledFlight();
+        scheduledFlight.setFlight(new Flight(FLIGHT_NUMBER));
 
-        sf.setDepartureTime(LocalDateTime.of(LocalDate.of(2024, 12, 12), LocalTime.of(12, 12, 12)));
-        sf.setArrivalTime(LocalDateTime.of(LocalDate.of(2024, 12, 12), LocalTime.of(13, 13, 13)));
+        scheduledFlight.setDepartureTime(LocalDateTime.of(LocalDate.of(2024, 12, 12), LocalTime.of(12, 12, 12)));
+        scheduledFlight.setArrivalTime(LocalDateTime.of(LocalDate.of(2024, 12, 12), LocalTime.of(13, 13, 13)));
         when(cliManager.println(anyString())).thenReturn(cliManager);
         when(cliManager.readLine())
                 .thenReturn(FLIGHT_NUMBER)
@@ -80,7 +80,7 @@ class AdminUiTest {
 
         when(cliManager.readDate(anyString())).thenReturn(LocalDate.of(2024, 12, 12));
 
-        when(service.findScheduledFlight(anyString(), any())).thenReturn(Optional.of(sf));
+        when(service.findScheduledFlight(anyString(), any())).thenReturn(Optional.of(scheduledFlight));
 
         final var newBookingCaptor = ArgumentCaptor.<Booking>captor();
 
@@ -193,7 +193,7 @@ class AdminUiTest {
     @ParameterizedTest
     @CsvSource({"true", "false"})
     void createScheduledFlight(boolean isAlready) {
-        final var sf = List.of(new ScheduledFlight());
+        final var scheduledFlight = List.of(new ScheduledFlight());
         final var flight = new Flight(FLIGHT_NUMBER);
 
         final var airplane = new Airplane(AIRPLANE_NUMBER);
@@ -207,7 +207,7 @@ class AdminUiTest {
 
         when(service.getAirplanes()).thenReturn(List.of(airplane));
         when(service.getFlights()).thenReturn(List.of(flight));
-        when(service.getScheduledFlights()).thenReturn(sf);
+        when(service.getScheduledFlights()).thenReturn(scheduledFlight);
 
         final var newSfCaptor = ArgumentCaptor.<ScheduledFlight>captor();
 
@@ -226,7 +226,7 @@ class AdminUiTest {
         verify(service).getScheduledFlights();
         verify(cliManager).printAll(List.of(flight), "The list of Flights: ", "No Flights yet! Ooupsie!");
         verify(cliManager).printAll(List.of(airplane), "The list of Airplanes: ", "No Airplanes yet!");
-        verify(cliManager).printAll(sf, "The list of Scheduled Flights: ", "No Scheduled Flights yet!");
+        verify(cliManager).printAll(scheduledFlight, "The list of Scheduled Flights: ", "No Scheduled Flights yet!");
 
         if (isAlready) {
             verify(cliManager).println("A flight with number A123 already exists on 2024-12-12");
