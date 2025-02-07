@@ -33,25 +33,26 @@ import ro.eduardismund.flightmgmt.domain.SeatingChart;
  * management repository, via JDBC. This class is responsible for managing flight-related data, including
  * flights, airplanes, scheduled flights, and bookings.
  */
+@SuppressWarnings("PMD.TooManyMethods")
 @SuppressFBWarnings("EI_EXPOSE_REP2")
 @RequiredArgsConstructor
 public class JdbcFlightManagementRepository implements FlightManagementRepository {
 
-    static final String SELECT_SCHEDULEDFLIGHT =
+    static final String SELECT_SF =
             """
-            SELECT AirplaneIdNumber, Id, FlightNumber, ArrivalTime, DepartureTime
-            FROM ScheduledFlight
-            WHERE AirplaneIdNumber = ? AND DepartudeDate = ?""";
-    static final String INSERT_SCHEDULEDFLIGHT =
+                    SELECT AirplaneIdNumber, Id, FlightNumber, ArrivalTime, DepartureTime
+                    FROM ScheduledFlight
+                    WHERE AirplaneIdNumber = ? AND DepartudeDate = ?""";
+    static final String INSERT_SF =
             """
-            INSERT INTO ScheduledFlight(Id, AirplaneIdNumber, FlightNumber, DepartureTime,ArrivalTime)
-            VALUES(?,?,?,?,?)""";
+                    INSERT INTO ScheduledFlight(Id, AirplaneIdNumber, FlightNumber, DepartureTime,ArrivalTime)
+                    VALUES(?,?,?,?,?)""";
     private final DataSource dataSource;
 
     @Override
     public void addFlight(Flight flight) {
         runInTransaction(conn -> {
-            try (final var insertFlight = conn.prepareStatement("INSERT INTO Flight(Number, Company) VALUES (?,?)")) {
+            try (var insertFlight = conn.prepareStatement("INSERT INTO Flight(Number, Company) VALUES (?,?)")) {
                 insertFlight.setString(1, flight.getNumber());
                 insertFlight.setString(2, flight.getCompany());
                 insertFlight.executeUpdate();
@@ -62,10 +63,10 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
 
     @SneakyThrows
     Flight readFlightDetails(ResultSet resultSet) {
-        String number = resultSet.getString("Number");
-        String company = resultSet.getString("Company");
+        final String number = resultSet.getString("Number");
+        final String company = resultSet.getString("Company");
 
-        Flight flight = new Flight(number);
+        final Flight flight = new Flight(number);
         flight.setCompany(company);
         return flight;
     }
@@ -75,11 +76,11 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     public List<ScheduledFlight> findScheduledFlightsForAirplane(String airplaneIdNumber, LocalDate date) {
         final var result = new ArrayList<ScheduledFlight>();
 
-        try (final var conn = getConnection(true);
-                final var selectScheduledFlights = conn.prepareStatement(SELECT_SCHEDULEDFLIGHT)) {
-            selectScheduledFlights.setString(1, airplaneIdNumber);
-            selectScheduledFlights.setDate(2, Date.valueOf(date));
-            try (var resultSet = selectScheduledFlights.executeQuery()) {
+        try (var conn = getConnection(true);
+                var selectSF = conn.prepareStatement(SELECT_SF)) {
+            selectSF.setString(1, airplaneIdNumber);
+            selectSF.setDate(2, Date.valueOf(date));
+            try (var resultSet = selectSF.executeQuery()) {
                 if (resultSet.next()) {
                     result.add(readScheduledFlightDetails(conn, resultSet));
                 }
@@ -90,36 +91,37 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
 
     @SneakyThrows
     ScheduledFlight readScheduledFlightDetails(Connection conn, ResultSet resultSet) {
-        String airplaneIdNumber = resultSet.getString("AirplaneIdNumber");
-        String sfId = resultSet.getString("Id");
-        String flightNumber = resultSet.getString("FlightNumber");
-        LocalDateTime arrivalTime = resultSet.getTimestamp("ArrivalTime").toLocalDateTime();
-        LocalDateTime departureTime = resultSet.getTimestamp("DepartureTime").toLocalDateTime();
+        final String airplaneIdNumber = resultSet.getString("AirplaneIdNumber");
+        final String sfId = resultSet.getString("Id");
+        final String flightNumber = resultSet.getString("FlightNumber");
+        final LocalDateTime arrivalTime = resultSet.getTimestamp("ArrivalTime").toLocalDateTime();
+        final LocalDateTime departureTime =
+                resultSet.getTimestamp("DepartureTime").toLocalDateTime();
 
-        final var sf = new ScheduledFlight();
-        sf.setFlight(findFlight(conn, flightNumber).orElseThrow());
-        sf.setAirplane(findAirplane(conn, airplaneIdNumber).orElseThrow());
-        sf.setDepartureTime(departureTime);
-        sf.setArrivalTime(arrivalTime);
+        final var scheduledFlight = new ScheduledFlight();
+        scheduledFlight.setFlight(findFlight(conn, flightNumber).orElseThrow());
+        scheduledFlight.setAirplane(findAirplane(conn, airplaneIdNumber).orElseThrow());
+        scheduledFlight.setDepartureTime(departureTime);
+        scheduledFlight.setArrivalTime(arrivalTime);
 
-        sf.setBookings(this.getBookingsOfScheduledFlight(sfId).stream()
-                .peek(booking -> booking.setScheduledFlight(sf))
+        scheduledFlight.setBookings(this.getBookingsOfScheduledFlight(sfId).stream()
+                .peek(booking -> booking.setScheduledFlight(scheduledFlight))
                 .collect(Collectors.toMap(Booking::getAssignedSeat, Function.identity())));
 
-        return sf;
+        return scheduledFlight;
     }
 
     @Override
     public void addScheduledFlight(ScheduledFlight scheduledFlight) {
         runInTransaction(conn -> {
-            try (final var insertScheduledFlight = conn.prepareStatement(INSERT_SCHEDULEDFLIGHT)) {
-                insertScheduledFlight.setString(1, getScheduledFlightId(scheduledFlight));
-                insertScheduledFlight.setString(2, scheduledFlight.getAirplane().getIdNumber());
-                insertScheduledFlight.setString(3, scheduledFlight.getFlight().getNumber());
-                insertScheduledFlight.setTimestamp(4, Timestamp.valueOf(scheduledFlight.getDepartureTime()));
-                insertScheduledFlight.setTimestamp(5, Timestamp.valueOf(scheduledFlight.getArrivalTime()));
+            try (var insertSf = conn.prepareStatement(INSERT_SF)) {
+                insertSf.setString(1, getScheduledFlightId(scheduledFlight));
+                insertSf.setString(2, scheduledFlight.getAirplane().getIdNumber());
+                insertSf.setString(3, scheduledFlight.getFlight().getNumber());
+                insertSf.setTimestamp(4, Timestamp.valueOf(scheduledFlight.getDepartureTime()));
+                insertSf.setTimestamp(5, Timestamp.valueOf(scheduledFlight.getArrivalTime()));
 
-                insertScheduledFlight.executeUpdate();
+                insertSf.executeUpdate();
 
                 for (final var booking : scheduledFlight.getBookings().values()) {
                     this.addBooking(booking);
@@ -133,11 +135,11 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @Override
     public Optional<ScheduledFlight> findScheduledFlight(String flightNumber, LocalDate localDate) {
 
-        try (final var conn = getConnection(true)) {
+        try (var conn = getConnection(true)) {
             return findScheduledFlightByWhereClause(
-                    conn, "WHERE FlightNumber = ? AND CAST(DepartureTime AS DATE) = ?", selectScheduledFlights -> {
-                        selectScheduledFlights.setString(1, flightNumber);
-                        selectScheduledFlights.setDate(2, Date.valueOf(localDate));
+                    conn, "WHERE FlightNumber = ? AND CAST(DepartureTime AS DATE) = ?", selectSf -> {
+                        selectSf.setString(1, flightNumber);
+                        selectSf.setDate(2, Date.valueOf(localDate));
                     });
         }
     }
@@ -145,7 +147,7 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @Override
     public void addBooking(Booking booking) {
         runInTransaction(conn -> {
-            try (final var insertBooking = conn.prepareStatement(
+            try (var insertBooking = conn.prepareStatement(
                     """
                             INSERT INTO SeatBooking(FirstName, LastName, IdDocument,
                             ScheduledFlightId, SeatRow, SeatName, BusinessClass)
@@ -174,9 +176,9 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @Override
     public void addAirplane(Airplane airplane) {
         runInTransaction(conn -> {
-            try (final var insertAirplane =
+            try (var insertAirplane =
                             conn.prepareStatement("INSERT INTO Airplane(IdNumber, Model,SeatsCount) VALUES(?,?,?)");
-                    final var insertSeat = conn.prepareStatement(
+                    var insertSeat = conn.prepareStatement(
                             "INSERT INTO Seat(AirplaneIdNumber, Row,SeatName,BusinessClass) VALUES(?,?,?,?)")) {
                 insertAirplane.setString(1, airplane.getIdNumber());
                 insertAirplane.setString(2, airplane.getModel());
@@ -184,7 +186,7 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
 
                 insertAirplane.executeUpdate();
 
-                for (var seat : airplane.getSeatingChart().getSeats()) {
+                for (final var seat : airplane.getSeatingChart().getSeats()) {
                     insertSeat.setString(1, airplane.getIdNumber());
                     insertSeat.setInt(2, seat.getRow());
                     insertSeat.setString(3, seat.getSeatName());
@@ -196,10 +198,10 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
         });
     }
 
-    @SuppressWarnings("UnusedReturnValue")
+    @SuppressWarnings({"UnusedReturnValue", "PMD.AvoidCatchingGenericException"})
     @SneakyThrows
     <T> T runInTransaction(ConnCallable<T> callable) {
-        try (final var conn = getConnection(false)) {
+        try (var conn = getConnection(false)) {
             try {
                 final var res = callable.call(conn);
                 conn.commit();
@@ -212,15 +214,15 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     }
 
     Airplane readAirplaneDetails(Connection conn, ResultSet resultSet) throws SQLException {
-        String idNumber = resultSet.getString("IdNumber");
-        String model = resultSet.getString("Model");
-        int seatsCount = resultSet.getInt("SeatsCount");
+        final String idNumber = resultSet.getString("IdNumber");
+        final String model = resultSet.getString("Model");
+        final int seatsCount = resultSet.getInt("SeatsCount");
 
-        Set<Seat> seats = getSeatingChart(conn, idNumber);
-        final var sc = new SeatingChart(seatsCount, seats);
-        Airplane airplane = new Airplane(String.valueOf(idNumber));
+        final Set<Seat> seats = getSeatingChart(conn, idNumber);
+        final var seatingChart = new SeatingChart(seatsCount, seats);
+        final Airplane airplane = new Airplane(String.valueOf(idNumber));
         airplane.setModel(model);
-        airplane.setSeatingChart(sc);
+        airplane.setSeatingChart(seatingChart);
         return airplane;
     }
 
@@ -228,11 +230,11 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @Override
     public boolean contains(Airplane airplane) {
         boolean found = false;
-        try (final var conn = getConnection(true);
-                final var selectAirplanes =
+        try (var conn = getConnection(true);
+                var selectAirplanes =
                         conn.prepareStatement("Select count(IdNumber) From Airplane WHERE IdNumber = ?")) {
             selectAirplanes.setString(1, airplane.getIdNumber());
-            try (final var resultSet = selectAirplanes.executeQuery()) {
+            try (var resultSet = selectAirplanes.executeQuery()) {
                 if (resultSet.next()) {
                     found = resultSet.getInt(1) == 1;
                 }
@@ -245,10 +247,10 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @Override
     public boolean contains(Flight flight) {
         boolean found = false;
-        try (final var conn = getConnection(true);
-                final var selectFlights = conn.prepareStatement("Select count(Number) From Flight WHERE Number = ?")) {
+        try (var conn = getConnection(true);
+                var selectFlights = conn.prepareStatement("Select count(Number) From Flight WHERE Number = ?")) {
             selectFlights.setString(1, flight.getNumber());
-            try (final var resultSet = selectFlights.executeQuery()) {
+            try (var resultSet = selectFlights.executeQuery()) {
                 if (resultSet.next()) {
                     found = resultSet.getInt(1) == 1;
                 }
@@ -260,13 +262,12 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @SneakyThrows
     @Override
     public List<Flight> getFlights() {
-        List<Flight> flights = new ArrayList<>();
-        try (final var conn = getConnection(true);
-                final var selectFlights = conn.prepareStatement("SELECT Number, Company FROM Flight")) {
-            try (final var resultSet = selectFlights.executeQuery()) {
-                while (resultSet.next()) {
-                    flights.add(readFlightDetails(resultSet));
-                }
+        final List<Flight> flights = new ArrayList<>();
+        try (var conn = getConnection(true);
+                var selectFlights = conn.prepareStatement("SELECT Number, Company FROM Flight");
+                var resultSet = selectFlights.executeQuery()) {
+            while (resultSet.next()) {
+                flights.add(readFlightDetails(resultSet));
             }
         }
         return flights;
@@ -275,35 +276,34 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @SneakyThrows
     @Override
     public List<Airplane> getAirplanes() {
-        List<Airplane> airplanes = new ArrayList<>();
-        try (final var conn = getConnection(true);
-                final var selectAirplanes = conn.prepareStatement("SELECT IdNumber, Model, SeatsCount FROM Airplane")) {
-            try (final var resultSet = selectAirplanes.executeQuery()) {
-                while (resultSet.next()) {
-                    airplanes.add(readAirplaneDetails(conn, resultSet));
-                }
+        final List<Airplane> airplanes = new ArrayList<>();
+        try (var conn = getConnection(true);
+                var selectAirplanes = conn.prepareStatement("SELECT IdNumber, Model, SeatsCount FROM Airplane");
+                var resultSet = selectAirplanes.executeQuery()) {
+            while (resultSet.next()) {
+                airplanes.add(readAirplaneDetails(conn, resultSet));
             }
         }
         return airplanes;
     }
 
     Set<Seat> getSeatingChart(Connection conn, String idNumber) throws SQLException {
-        try (final var selectSeats = conn.prepareStatement(
+        try (var selectSeats = conn.prepareStatement(
                 """
                         SELECT s.Row, s.SeatName, s.BusinessClass
                         FROM Seat s
                         WHERE s.AirplaneIdNumber = ?""")) {
 
             selectSeats.setString(1, idNumber);
-            try (final var resultSet2 = selectSeats.executeQuery()) {
+            try (var resultSet2 = selectSeats.executeQuery()) {
 
-                Set<Seat> seats = new HashSet<>();
+                final Set<Seat> seats = new HashSet<>();
 
                 while (resultSet2.next()) {
-                    int row = resultSet2.getInt("Row");
-                    String seatsPerRow = resultSet2.getString("SeatName");
-                    boolean bc = resultSet2.getBoolean("BusinessClass");
-                    seats.add(new Seat(row, seatsPerRow, bc));
+                    final int row = resultSet2.getInt("Row");
+                    final String seatsPerRow = resultSet2.getString("SeatName");
+                    final boolean businessClass = resultSet2.getBoolean("BusinessClass");
+                    seats.add(new Seat(row, seatsPerRow, businessClass));
                 }
                 return seats;
             }
@@ -313,14 +313,13 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @SneakyThrows
     @Override
     public List<ScheduledFlight> getScheduledFlights() {
-        List<ScheduledFlight> scheduledFlights = new ArrayList<>();
-        try (final var conn = getConnection(true);
-                final var selectScheduledFLight = conn.prepareStatement(
-                        "SELECT AirplaneIdNumber, Id, FlightNumber, DepartureTime,ArrivalTime FROM ScheduledFlight")) {
-            try (final var resultSet = selectScheduledFLight.executeQuery()) {
-                while (resultSet.next()) {
-                    scheduledFlights.add(readScheduledFlightDetails(conn, resultSet));
-                }
+        final List<ScheduledFlight> scheduledFlights = new ArrayList<>();
+        try (var conn = getConnection(true);
+                var selectSf = conn.prepareStatement(
+                        "SELECT AirplaneIdNumber, Id, FlightNumber, DepartureTime,ArrivalTime FROM ScheduledFlight");
+                var resultSet = selectSf.executeQuery()) {
+            while (resultSet.next()) {
+                scheduledFlights.add(readScheduledFlightDetails(conn, resultSet));
             }
         }
         return scheduledFlights;
@@ -329,7 +328,7 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @SneakyThrows
     Optional<Airplane> findAirplane(Connection conn, String airplaneId) {
         var result = Optional.<Airplane>empty();
-        try (final var selectAirplanes = conn.prepareStatement(
+        try (var selectAirplanes = conn.prepareStatement(
                 """
                         SELECT IdNumber, Model, SeatsCount
                         FROM Airplane WHERE IdNumber = ?""")) {
@@ -346,7 +345,7 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @SneakyThrows
     @Override
     public Optional<Airplane> findAirplane(String airplaneNumber) {
-        try (final var conn = getConnection(true)) {
+        try (var conn = getConnection(true)) {
             return findAirplane(conn, airplaneNumber);
         }
     }
@@ -354,7 +353,7 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @SneakyThrows
     Optional<Flight> findFlight(Connection conn, String flightNumber) {
         var result = Optional.<Flight>empty();
-        try (final var selectFlights = conn.prepareStatement("SELECT Number, Company  FROM Flight WHERE Number = ?")) {
+        try (var selectFlights = conn.prepareStatement("SELECT Number, Company  FROM Flight WHERE Number = ?")) {
             selectFlights.setString(1, flightNumber);
             try (var resultSet = selectFlights.executeQuery()) {
                 if (resultSet.next()) {
@@ -368,24 +367,24 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     @SneakyThrows
     @Override
     public Optional<Flight> findFlight(String flightNumber) {
-        try (final var conn = getConnection(true)) {
+        try (var conn = getConnection(true)) {
             return findFlight(conn, flightNumber);
         }
     }
 
     @SneakyThrows
     List<Booking> getBookingsOfScheduledFlight(String scheduledFlightId) {
-        List<Booking> bookings = new ArrayList<>();
-        try (final var conn = getConnection(true);
-                final var selectBookings = conn.prepareStatement(
+        final List<Booking> bookings = new ArrayList<>();
+        try (var conn = getConnection(true);
+                var selectBookings = conn.prepareStatement(
                         """
                              SELECT FirstName, LastName, IdDocument, ScheduledFlightId, SeatRow, SeatName, BusinessClass
                              FROM SeatBooking
                              WHERE ScheduledFlightId = ?""")) {
             selectBookings.setString(1, scheduledFlightId);
-            try (final var resultSet = selectBookings.executeQuery()) {
+            try (var resultSet = selectBookings.executeQuery()) {
                 while (resultSet.next()) {
-                    Booking booking = readBookingDetails(resultSet);
+                    final Booking booking = readBookingDetails(resultSet);
                     bookings.add(booking);
                 }
             }
@@ -395,14 +394,14 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
 
     @SneakyThrows
     Booking readBookingDetails(ResultSet resultSet) {
-        String firstName = resultSet.getString("FirstName");
-        String lastName = resultSet.getString("LastName");
-        String idDocument = resultSet.getString("IdDocument");
-        int row = resultSet.getInt("SeatRow");
-        String seatName = resultSet.getString("SeatName");
-        boolean bc = resultSet.getBoolean("BusinessClass");
-        Booking booking = new Booking();
-        booking.setAssignedSeat(new Seat(row, seatName, bc));
+        final String firstName = resultSet.getString("FirstName");
+        final String lastName = resultSet.getString("LastName");
+        final String idDocument = resultSet.getString("IdDocument");
+        final int row = resultSet.getInt("SeatRow");
+        final String seatName = resultSet.getString("SeatName");
+        final boolean businessClass = resultSet.getBoolean("BusinessClass");
+        final Booking booking = new Booking();
+        booking.setAssignedSeat(new Seat(row, seatName, businessClass));
         booking.setPassenger(new Passenger(firstName, lastName, idDocument));
         return booking;
     }
@@ -411,14 +410,14 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
     Optional<ScheduledFlight> findScheduledFlightByWhereClause(
             Connection conn, String whereClause, PsParamsSetter psParamsSetter) {
         var result = Optional.<ScheduledFlight>empty();
-        try (final var selectScheduledFlights = conn.prepareStatement(
+        try (var selectSf = conn.prepareStatement(
                 """
                         SELECT AirplaneIdNumber, FlightNumber, ArrivalTime, DepartureTime
                         FROM ScheduledFlight
                         """
                         + whereClause); ) {
-            psParamsSetter.setParams(selectScheduledFlights);
-            try (var resultSet = selectScheduledFlights.executeQuery()) {
+            psParamsSetter.setParams(selectSf);
+            try (var resultSet = selectSf.executeQuery()) {
                 if (resultSet.next()) {
                     result = Optional.of(readScheduledFlightDetails(conn, resultSet));
                 }
@@ -436,6 +435,7 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
 
     interface ConnCallable<T> {
 
+        @SuppressWarnings("PMD.SignatureDeclareThrowsException")
         T call(Connection conn) throws Exception;
     }
 

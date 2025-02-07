@@ -1,22 +1,31 @@
 package ro.eduardismund.flightmgmt.app;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import java.util.Properties;
 import javax.sql.DataSource;
 
+/**
+ * Factory for creating a {@link DataSource} using environment properties.
+ */
 public class DataSourceComponentFactory implements ComponentFactory<DataSource> {
+
+    /**
+     * Creates a {@link DataSource} configured with the provided environment properties.
+     *
+     * @param properties The environment properties containing database connection details.
+     * @param componentResolver The component resolver.
+     * @return A {@link DataSource} instance configured with the given properties.
+     */
     @Override
-    public DataSource createComponent(Properties properties, ComponentResolver componentResolver) {
+    public DataSource createComponent(Environment properties, ComponentResolver componentResolver) {
+        final String url = properties.getProperty("datasource.url");
+        final String username = properties.getProperty("datasource.username");
+        final String password = properties.getProperty("datasource.password");
 
-        String url = properties.getProperty("datasource.url");
-        String username = properties.getProperty("datasource.username");
-        String password = properties.getProperty("datasource.password");
+        final SQLServerDataSource dataSource = new SQLServerDataSource();
+        dataSource.setURL(url);
+        dataSource.setUser(username);
+        dataSource.setPassword(password);
 
-        SQLServerDataSource ds = new SQLServerDataSource();
-        ds.setURL(url);
-        ds.setUser(username);
-        ds.setPassword(password);
-
-        return ds;
+        return dataSource;
     }
 }

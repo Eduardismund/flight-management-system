@@ -20,7 +20,7 @@ import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
  */
 @RequiredArgsConstructor
 @SuppressFBWarnings("EI_EXPOSE_REP")
-public class Service {
+public class DefaultFlightManagementService implements FlightManagementService {
     private final FlightManagementRepository repository;
 
     /**
@@ -28,6 +28,7 @@ public class Service {
      *
      * @param booking to be added
      */
+    @Override
     public void createBooking(Booking booking) {
         repository.addBooking(booking);
     }
@@ -38,6 +39,7 @@ public class Service {
      * @param flight the {@link Flight} object to be created
      * @throws FlightAlreadyExistsException if a flight with the same number already exists
      */
+    @Override
     public void createFlight(Flight flight) throws FlightAlreadyExistsException {
         if (repository.findFlight(flight.getNumber()).isPresent()) {
             throw new FlightAlreadyExistsException(flight.getNumber());
@@ -52,6 +54,7 @@ public class Service {
      * @param airplane the {@link Airplane} object to be created
      * @throws AirplaneAlreadyExistsException if an airplane with the same ID already exists
      */
+    @Override
     public void createAirplane(Airplane airplane) throws AirplaneAlreadyExistsException {
         if (repository.findAirplane(airplane.getIdNumber()).isPresent()) {
             throw new AirplaneAlreadyExistsException(airplane.getIdNumber());
@@ -87,6 +90,7 @@ public class Service {
      *     conflicting flight
      * @throws ArrivalBeforeDepartureException if the arrival time is before the departure time
      */
+    @Override
     public void createScheduledFlight(ScheduledFlight scheduledFlight)
             throws ScheduledFlightAlreadyExistsException, AirplaneAlreadyScheduledException,
                     ArrivalBeforeDepartureException {
@@ -133,6 +137,7 @@ public class Service {
      * @return an {@link Optional} containing the found {@link Flight} if it exists, or an empty
      *     Optional if not
      */
+    @Override
     public Optional<Flight> findFlight(String number) {
         return repository.findFlight(number);
     }
@@ -144,6 +149,7 @@ public class Service {
      * @return an {@link Optional} containing the found {@link Airplane} if it exists, or an empty
      *     Optional if not
      */
+    @Override
     public Optional<Airplane> findAirplane(String idNumber) {
         return repository.findAirplane(idNumber);
     }
@@ -153,6 +159,7 @@ public class Service {
      *
      * @return a list of {@link Flight} objects
      */
+    @Override
     public List<Flight> getFlights() {
         return repository.getFlights();
     }
@@ -162,6 +169,7 @@ public class Service {
      *
      * @return a list of {@link Airplane} objects
      */
+    @Override
     public List<Airplane> getAirplanes() {
         return repository.getAirplanes();
     }
@@ -171,12 +179,10 @@ public class Service {
      *
      * @return a list of {@link ScheduledFlight} objects
      */
+    @Override
     public List<ScheduledFlight> getScheduledFlights() {
         return repository.getScheduledFlights();
     }
-    //    public List<Booking> getBookings() {
-    //        return repository.get();
-    //    }
 
     /**
      * Finds a scheduled flight in the repository by flight number and date.
@@ -186,6 +192,7 @@ public class Service {
      * @return an {@link Optional} containing the found {@link ScheduledFlight} if it exists, or an
      *     empty Optional if not
      */
+    @Override
     public Optional<ScheduledFlight> findScheduledFlight(String flightNumber, LocalDate localDate) {
         return repository.findScheduledFlight(flightNumber, localDate);
     }

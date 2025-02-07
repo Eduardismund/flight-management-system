@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.util.Properties;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -22,7 +21,7 @@ class NegateConditionTest {
         doReturn(originalResult).when(condition).test(any());
         final var negatedCondition = new NegateCondition(condition);
 
-        final var properties = mock(Properties.class);
+        final var properties = mock(Environment.class);
         assertEquals(!originalResult, negatedCondition.test(properties));
         verify(condition).test(properties);
     }

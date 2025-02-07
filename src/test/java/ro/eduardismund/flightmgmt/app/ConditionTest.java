@@ -21,4 +21,9 @@ class ConditionTest {
 
         assertInstanceOf(NegateCondition.class, Condition.alwaysTrue().negate());
     }
+
+    @Test
+    void orCondition() {
+        assertInstanceOf(OrCondition.class, Condition.alwaysTrue().or(Condition.alwaysTrue()));
+    }
 }

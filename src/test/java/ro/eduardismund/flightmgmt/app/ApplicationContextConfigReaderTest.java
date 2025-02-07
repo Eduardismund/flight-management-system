@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class ApplicationContextConfigReaderTest {
+class ApplicationContextConfigReaderTest {
 
     @Test
-    public void getReaderWithPath(@TempDir Path tempDir) throws IOException {
+    void getReaderWithPath(@TempDir Path tempDir) throws IOException {
         final var filePath = tempDir.resolve(getClass().getSimpleName() + ".properties");
         final String content = """
                 key1=value1

@@ -12,12 +12,16 @@ plugins {
 pitest {
     junit5PluginVersion = '1.2.0'
     targetClasses = ['ro.eduardismund.flightmgmt.*']
-    // fixme only exclude the app class after application context classes are covered
-    excludedClasses = ['ro.eduardismund.flightmgmt.app.App']
+    excludedClasses = ['ro.eduardismund.flightmgmt.app.App',
+                       'ro.eduardismund.flightmgmt.app.ClientSocketComponentFactory']
     targetTests = ['ro.eduardismund.flightmgmt.*']
+    excludedTestClasses = ['ro.eduardismund.flightmgmt.app.ClientSocketComponentFactoryConnectTest']
     mutationThreshold = 100
     outputFormats = ['HTML']
     timestampedReports = false
+    threads = 4
+    historyInputLocation = rootProject.layout.projectDirectory.file(".gradle/pitest-history/${project.name}")
+    historyOutputLocation = rootProject.layout.projectDirectory.file(".gradle/pitest-history/${project.name}")
 }
 
 group = 'ro.eduardismund'
@@ -52,6 +56,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
     implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
 
 }
 
@@ -60,16 +66,43 @@ test {
     finalizedBy jacocoTestReport
 }
 
+
 checkstyle {
     toolVersion = '10.18.2'
 }
 
+def buildConfigDir = "${project.projectDir}/config"
+
+checkstyleMain {
+    group ='verification'
+    configFile= file("${buildConfigDir}/checkstyle/checkstyle-main.xml") as File
+}
+
+checkstyleTest {
+    group = 'verification'
+    configFile= file("${buildConfigDir}/checkstyle/checkstyle-test.xml") as File
+}
+
 pmd {
-    toolVersion = '7.6.0'
-    ignoreFailures = true
+    toolVersion = '7.11.0'
+    ignoreFailures = false
+}
+
+pmdMain{
+    group = 'verification'
+    ruleSetFiles = files("${buildConfigDir}/pmd/pmd-main.xml")
+    ruleSets = []
+}
+
+pmdTest{
+    group = 'verification'
+    ruleSetFiles = files("${buildConfigDir}/pmd/pmd-test.xml")
+    ruleSets = []
 }
 
 def spotbugsReportSetup(it, qualifier) {
+    it.excludeFilter = rootProject.layout.projectDirectory
+            .file("config/spotbugs/spotbugs-exclusions-${qualifier}.xml")
     it.reports.create('html') {
         required = true
         outputLocation = project.layout.buildDirectory.file(
