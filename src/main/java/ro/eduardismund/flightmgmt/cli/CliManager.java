@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -16,10 +17,11 @@ import lombok.RequiredArgsConstructor;
  */
 @SuppressFBWarnings("EI_EXPOSE_REP2")
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class CliManager {
 
-    private final PrintStream out;
-    private final Scanner scanner;
+    public PrintStream out;
+    public Scanner scanner;
 
     public CliManager println(String message) {
         out.println(message);

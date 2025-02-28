@@ -1,20 +1,21 @@
 package ro.eduardismund.flightmgmt.app;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import lombok.Getter;
+import java.util.function.Predicate;
 import lombok.SneakyThrows;
 
 @SuppressFBWarnings("EI_EXPOSE_REP")
 public class ApplicationContext {
 
-    private static final String CONFIG_FILE = "config/application.properties";
-    private final Map<Class<?>, Object> components = new HashMap<>();
-    private final Set<ComponentCondition> componentClasses = new HashSet<>();
+    static final String CONFIG_FILE = "config/application.properties";
+    final Map<Class<?>, Object> components = new HashMap<>();
+    final Set<ComponentCondition> componentClasses = new HashSet<>();
 
-    @Getter
     private Properties properties;
 
     @SuppressWarnings("unused")
@@ -23,12 +24,20 @@ public class ApplicationContext {
     }
 
     @SneakyThrows
-    private static Properties loadConfigFile() {
+    Properties loadConfigFile() {
         final var properties = new Properties();
-        try (final var buffer = Files.newBufferedReader(Path.of(CONFIG_FILE))) {
+        try (final var buffer = getReader()) {
             properties.load(buffer);
         }
         return properties;
+    }
+
+    Reader getReader() throws IOException {
+        return getReader(CONFIG_FILE);
+    }
+
+    Reader getReader(String configFile) throws IOException {
+        return Files.newBufferedReader(Path.of(configFile));
     }
 
     public void registerComponentClass(Class<?> componentClass, Condition condition) {
@@ -41,21 +50,20 @@ public class ApplicationContext {
 
     public void processComponents() {
         properties = loadConfigFile();
-        componentClasses.stream()
-                .filter(compCond -> ComponentFactory.class.isAssignableFrom(compCond.componentClass))
-                .filter(compCond -> compCond.condition.test(properties))
-                .map(ComponentCondition::componentClass)
-                .forEach(this::createComponent);
+        createComponents(ComponentFactory.class::isAssignableFrom);
+        createComponents(Predicate.not(ComponentFactory.class::isAssignableFrom));
+    }
 
+    private void createComponents(Predicate<Class<?>> classPredicate) {
         componentClasses.stream()
-                .filter(compCond -> !ComponentFactory.class.isAssignableFrom(compCond.componentClass))
+                .filter(compCond -> classPredicate.test(compCond.componentClass))
                 .filter(compCond -> compCond.condition.test(properties))
                 .map(ComponentCondition::componentClass)
                 .forEach(this::createComponent);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T resolveDependency(Class<T> type) {
+    <T> T resolveDependency(Class<T> type) {
         if (components.containsKey(type)) {
             return (T) components.get(type);
         }
@@ -77,12 +85,6 @@ public class ApplicationContext {
 
     @SneakyThrows
     private Object createComponent(Class<?> cls) {
-
-        final var existingComponent = components.get(cls);
-        if (existingComponent != null) {
-            return existingComponent;
-        }
-
         for (final var constructor : cls.getConstructors()) {
 
             Object[] parameters = new Object[constructor.getParameterCount()];
@@ -115,5 +117,5 @@ public class ApplicationContext {
         }
     }
 
-    private record ComponentCondition(Class<?> componentClass, Condition condition) {}
+    record ComponentCondition(Class<?> componentClass, Condition condition) {}
 }
