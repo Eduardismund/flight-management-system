@@ -1,2 +1,19 @@
-rootProject.name = 'flight-management'
+pluginManagement {
 
+    plugins {
+        id 'info.solidsoft.pitest' version '1.15.0'
+        id 'com.diffplug.spotless' version '6.25.0'
+        id 'com.github.spotbugs' version '6.0.18'
+    }
+}
+
+rootProject.name = 'flight-management'
+include 'cli'
+include 'domain-core'
+include 'inmem-repository'
+include 'jdbc-repository'
+include 'app-socket-client'
+include 'app-socket-server'
+include 'transport-model'
+include 'application-context'
+include 'app-standalone'

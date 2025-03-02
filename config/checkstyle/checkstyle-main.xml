@@ -73,7 +73,7 @@
             <property name="allowNonPrintableEscapes" value="true"/>
         </module>
         <module name="AvoidStarImport">
-            <property name="excludes" value="ro.eduardismund.flightmgmt.server"/>
+            <property name="excludes" value="ro.eduardismund.flightmgmt.dtos"/>
         </module>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap">
