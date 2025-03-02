@@ -1,105 +1,183 @@
-plugins {
-    id 'java'
-    id 'application'
-    id 'jacoco'
-    id 'checkstyle'
-    id 'pmd'
-    id 'info.solidsoft.pitest' version '1.15.0'
-    id 'com.diffplug.spotless' version '6.25.0'
-    id 'com.github.spotbugs' version '6.0.18'
+plugins{
+    id 'info.solidsoft.pitest' apply false
+    id 'com.diffplug.spotless' apply false
+    id 'com.github.spotbugs' apply false
+    id 'java-platform'
 }
 
-pitest {
-    junit5PluginVersion = '1.2.0'
-    targetClasses = ['ro.eduardismund.flightmgmt.*']
-    excludedClasses = ['ro.eduardismund.flightmgmt.app.App',
-                       'ro.eduardismund.flightmgmt.app.ClientSocketComponentFactory']
-    targetTests = ['ro.eduardismund.flightmgmt.*']
-    excludedTestClasses = ['ro.eduardismund.flightmgmt.app.ClientSocketComponentFactoryConnectTest']
-    mutationThreshold = 100
-    outputFormats = ['HTML']
-    timestampedReports = false
-    threads = 4
-    historyInputLocation = rootProject.layout.projectDirectory.file(".gradle/pitest-history/${project.name}")
-    historyOutputLocation = rootProject.layout.projectDirectory.file(".gradle/pitest-history/${project.name}")
-}
+subprojects { subproject ->
+    apply plugin: 'java-library'
+    apply plugin: 'jacoco'
+    apply plugin: 'checkstyle'
+    apply plugin: 'pmd'
+    apply plugin: 'info.solidsoft.pitest'
+    apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'com.github.spotbugs'
 
-group = 'ro.eduardismund'
-version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
-application {
-    mainClass = 'ro.eduardismund.flightmgmt.app.App'
-}
-
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'ro.eduardismund.flightmgmt.app.App'
-        )
+    pitest {
+        junit5PluginVersion = '1.2.0'
+        targetClasses = ['ro.eduardismund.*']
+        excludedClasses = ['ro.eduardismund.flightmgmt.app.*App',
+                           'ro.eduardismund.flightmgmt.app.ClientSocketComponentFactory']
+        targetTests = ['ro.eduardismund.*']
+        excludedTestClasses = ['ro.eduardismund.flightmgmt.app.ClientSocketComponentFactoryConnectTest']
+        mutationThreshold = 100
+        outputFormats = ['HTML']
+        timestampedReports = false
+        threads = 4
+        historyInputLocation = rootProject.layout.projectDirectory.file(".gradle/pitest-history/${subproject.name}")
+        historyOutputLocation = rootProject.layout.projectDirectory.file(".gradle/pitest-history/${subproject.name}")
     }
+
+    group = 'ro.eduardismund'
+    version = '1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+
+    def uberJarSubprojects = ['app-standalone', 'app-socket-server', 'app-socket-client']
+
+    if(uberJarSubprojects.contains(subproject.name)) {
+
+        def mainClassName = 'ro.eduardismund.flightmgmt.app.StandaloneApp'
+        if (subproject.name.equals('app-socket-server')) {
+            mainClassName = 'ro.eduardismund.flightmgmt.app.SocketServerApp'
+        } else if (subproject.name.equals('app-socket-client')) {
+            mainClassName = 'ro.eduardismund.flightmgmt.app.SocketClientApp'
+        }
+        apply plugin: 'application'
+
+
+        application {
+            mainClass.set(mainClassName)
+        }
+
+        tasks.register('uberJar', Jar) {
+            group = 'build'
+            dependsOn assemble
+            archiveBaseName.set("${project.name}-uber")
+            archiveVersion.set("${project.version}")
+
+            from sourceSets.main.output
+
+            from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+            exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+
+
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+            manifest {
+                attributes('Main-Class': mainClassName)
+            }
+        }
+
+    }
+
+    configurations {
+        testImplementation.extendsFrom compileOnly
+        testAnnotationProcessor.extendsFrom annotationProcessor
+    }
+
+    dependencies {
+        constraints {
+            api 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+            api 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+            api 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
+
+        }
+        compileOnly 'org.projectlombok:lombok:1.18.34'
+        compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
+        annotationProcessor 'org.projectlombok:lombok:1.18.34'
+        testImplementation platform('org.junit:junit-bom:5.10.0')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+
+    }
+
+    test {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+
+    checkstyle {
+        toolVersion = '10.18.2'
+    }
+
+    def buildConfigDir = rootProject.layout.projectDirectory.dir('config')
+
+    checkstyleMain {
+        group = 'verification'
+        configFile = buildConfigDir.file('checkstyle/checkstyle-main.xml').asFile
+    }
+
+    checkstyleTest {
+        group = 'verification'
+        configFile = buildConfigDir.file('checkstyle/checkstyle-test.xml').asFile
+    }
+
+    pmd {
+        toolVersion = '7.11.0'
+        ignoreFailures = false
+    }
+
+    pmdMain {
+        group = 'verification'
+        ruleSetFiles = buildConfigDir.files('pmd/pmd-main.xml')
+        ruleSets = []
+    }
+
+    pmdTest {
+        group = 'verification'
+        ruleSetFiles = buildConfigDir.files('pmd/pmd-test.xml')
+        ruleSets = []
+    }
+
+
+
+    spotbugsReportSetup(tasks.spotbugsMain, 'main')
+    spotbugsReportSetup(tasks.spotbugsTest, 'test')
+
+    spotless {
+        java {
+            palantirJavaFormat('2.50.0')
+            removeUnusedImports()
+            indentWithSpaces(4)
+        }
+    }
+
+
+    jacoco {
+        toolVersion = '0.8.12'
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.required = true
+            html.required = true
+        }
+        afterEvaluate {
+            configureClassDirectories(jacocoTestReport)
+        }
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    minimum = 1.000
+                }
+            }
+        }
+        afterEvaluate {
+            configureClassDirectories(jacocoTestCoverageVerification)
+        }
+    }
+
+    check.dependsOn(jacocoTestCoverageVerification)
+
 }
-
-configurations {
-    testCompileOnly.extendsFrom compileOnly
-    testAnnotationProcessor.extendsFrom annotationProcessor
-}
-
-dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.34'
-    compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
-    annotationProcessor 'org.projectlombok:lombok:1.18.34'
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
-    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
-    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
-    implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
-
-}
-
-test {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-
-checkstyle {
-    toolVersion = '10.18.2'
-}
-
-def buildConfigDir = "${project.projectDir}/config"
-
-checkstyleMain {
-    group ='verification'
-    configFile= file("${buildConfigDir}/checkstyle/checkstyle-main.xml") as File
-}
-
-checkstyleTest {
-    group = 'verification'
-    configFile= file("${buildConfigDir}/checkstyle/checkstyle-test.xml") as File
-}
-
-pmd {
-    toolVersion = '7.11.0'
-    ignoreFailures = false
-}
-
-pmdMain{
-    group = 'verification'
-    ruleSetFiles = files("${buildConfigDir}/pmd/pmd-main.xml")
-    ruleSets = []
-}
-
-pmdTest{
-    group = 'verification'
-    ruleSetFiles = files("${buildConfigDir}/pmd/pmd-test.xml")
-    ruleSets = []
-}
-
 def spotbugsReportSetup(it, qualifier) {
     it.excludeFilter = rootProject.layout.projectDirectory
             .file("config/spotbugs/spotbugs-exclusions-${qualifier}.xml")
@@ -110,52 +188,12 @@ def spotbugsReportSetup(it, qualifier) {
     }
 }
 
-spotbugsReportSetup(tasks.spotbugsMain, 'main')
-spotbugsReportSetup(tasks.spotbugsTest, 'test')
-
-spotless {
-    java {
-        palantirJavaFormat('2.50.0')
-        removeUnusedImports()
-        indentWithSpaces(4)
-    }
-}
-
 def configureClassDirectories(task) {
     task.classDirectories.setFrom(
             files(task.classDirectories.files.collect {
                 fileTree(dir: it, exclude: [
-                          '**/ro/eduardismund/flightmgmt/app/App.class'
+                        '**/ro/eduardismund/flightmgmt/app/*App.class'
                 ])
             })
     )
 }
-
-jacoco {
-    toolVersion = '0.8.12'
-}
-
-jacocoTestReport {
-    reports {
-        xml.required = true
-        html.required = true
-    }
-    afterEvaluate {
-        configureClassDirectories(jacocoTestReport)
-    }
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 1.000
-            }
-        }
-    }
-    afterEvaluate {
-        configureClassDirectories(jacocoTestCoverageVerification)
-    }
-}
-
-check.dependsOn(jacocoTestCoverageVerification)

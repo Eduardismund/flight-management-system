@@ -1,0 +1,5 @@
+dependencies {
+    compileOnly project(':domain-core')
+    compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api'
+    testRuntimeOnly 'org.glassfish.jaxb:jaxb-runtime'
+}
