@@ -10,9 +10,9 @@ The core functionality revolves around managing flight operations, including the
 * Add a booking
 
 Data is stored either:
-* in [memory](src/main/java/ro/eduardismund/flightmgmt/repo/InmemFlightManagementRepository.java)
-  * with [file serialization](src/main/java/ro/eduardismund/flightmgmt/repo/JavaSerializationFlightManagementPersistenceManager.java), demonstrating the persistence of information through serialization and deserialization processes.
-* in [RDBMS](src/main/java/ro/eduardismund/flightmgmt/repo/JdbcFlightManagementRepository.java)
+* in [memory](application-context/src/main/java/ro/eduardismund/flightmgmt/repo/InmemFlightManagementRepository.java)
+  * with [file serialization](application-context/src/main/java/ro/eduardismund/flightmgmt/repo/JavaSerializationFlightManagementPersistenceManager.java), demonstrating the persistence of information through serialization and deserialization processes.
+* in [RDBMS](application-context/src/main/java/ro/eduardismund/flightmgmt/repo/JdbcFlightManagementRepository.java)
   * in order to initialize MS SQL Server Database run the scripts: [database.sql](sql/database.sql), [schema.sql](sql/schema.sql)
 
 Gradle integrates tools like Checkstyle, PMD, Spotless, and SpotBugs to ensure code quality, adherence to standards, and maintainability.
@@ -28,3 +28,16 @@ The [build.gradle](build.gradle) has the following features:
 * __SpotBugs__: Configures HTML report generation for both main and test tasks.
 * __Spotless__: Ensures consistent code formatting using Palantir’s Java formatter and removes unused imports.
 * __JaCoCo__: Excludes certain directories from coverage reports and enforces 100% coverage verification.#
+
+# Features: 
+* Application Context
+* Socket Client
+* Socket Server
+* Jdbc Repository
+* In memory repository
+* Domain core
+  * Service interface
+  * repository interface
+  * core model
+* transport model
+* cli
