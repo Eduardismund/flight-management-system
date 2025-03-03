@@ -1,6 +1,0 @@
-dependencies {
-    implementation project(':domain-core')
-    implementation project(':transport-model')
-    implementation project(':application-context')
-    implementation project(':cli')
-}

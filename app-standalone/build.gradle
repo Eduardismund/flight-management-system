@@ -4,4 +4,9 @@ dependencies {
     implementation project(':application-context')
     implementation project(':jdbc-repository')
     implementation project(':inmem-repository')
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+}
+
+tasks.named('pitest') {
+    enabled = false
 }

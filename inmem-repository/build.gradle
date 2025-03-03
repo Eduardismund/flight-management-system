@@ -1,4 +1,4 @@
 dependencies {
     implementation project(':domain-core')
-    implementation project(':application-context')
+    compileOnly project(':application-context')
 }

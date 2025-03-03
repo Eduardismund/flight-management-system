@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SocketServerApp" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="ro.eduardismund.flightmgmt.app.SocketServerApp" />
+    <module name="flight-management.app-socket-server.main" />
+    <selectedOptions>
+      <option name="environmentVariables" visible="false" />
+    </selectedOptions>
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="ro.eduardismund.flightmgmt.appctx.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -24,7 +24,7 @@ public class DataSourceComponentFactory implements ComponentFactory<DataSource> 
         final String username = properties.getProperty("datasource.username");
         final String password = properties.getProperty("datasource.password");
 
-        final SQLServerDataSource dataSource = new SQLServerDataSource();
+        final var dataSource = new SQLServerDataSource();
         dataSource.setURL(url);
         dataSource.setUser(username);
         dataSource.setPassword(password);

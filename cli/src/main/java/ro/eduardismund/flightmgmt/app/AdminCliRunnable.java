@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import ro.eduardismund.appctx.ApplicationRunnable;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
 import ro.eduardismund.flightmgmt.cli.CliManager;
-import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
 
 /**
  * CLI-based Flight Management application that allows the user to manage flights,
@@ -14,7 +13,6 @@ import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
 @SuppressFBWarnings("EI_EXPOSE_REP2")
 @RequiredArgsConstructor
 public class AdminCliRunnable implements ApplicationRunnable {
-    private final FlightManagementRepository repo;
     private final CliManager cliManager;
     private final AdminUi adminUi;
 
@@ -26,7 +24,6 @@ public class AdminCliRunnable implements ApplicationRunnable {
      */
     @Override
     public void run(String[] args) {
-        repo.init();
         cliManager.println("Welcome to Flights Management");
         boolean notFinished = true;
         while (notFinished) {

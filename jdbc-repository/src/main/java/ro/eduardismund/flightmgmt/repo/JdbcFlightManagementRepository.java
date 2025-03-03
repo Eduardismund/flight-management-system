@@ -42,7 +42,7 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
             """
                     SELECT AirplaneIdNumber, Id, FlightNumber, ArrivalTime, DepartureTime
                     FROM ScheduledFlight
-                    WHERE AirplaneIdNumber = ? AND DepartudeDate = ?""";
+                    WHERE AirplaneIdNumber = ? AND DepartureDate = ?""";
     static final String INSERT_SF =
             """
                     INSERT INTO ScheduledFlight(Id, AirplaneIdNumber, FlightNumber, DepartureTime,ArrivalTime)
@@ -412,10 +412,10 @@ public class JdbcFlightManagementRepository implements FlightManagementRepositor
         var result = Optional.<ScheduledFlight>empty();
         try (var selectSf = conn.prepareStatement(
                 """
-                        SELECT AirplaneIdNumber, FlightNumber, ArrivalTime, DepartureTime
+                        SELECT Id, AirplaneIdNumber, FlightNumber, ArrivalTime, DepartureTime
                         FROM ScheduledFlight
                         """
-                        + whereClause); ) {
+                        + whereClause)) {
             psParamsSetter.setParams(selectSf);
             try (var resultSet = selectSf.executeQuery()) {
                 if (resultSet.next()) {

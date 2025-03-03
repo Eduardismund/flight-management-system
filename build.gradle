@@ -2,10 +2,11 @@ plugins{
     id 'info.solidsoft.pitest' apply false
     id 'com.diffplug.spotless' apply false
     id 'com.github.spotbugs' apply false
+    id 'java-platform'
 }
+
 subprojects { subproject ->
     apply plugin: 'java-library'
-    apply plugin: 'application'
     apply plugin: 'jacoco'
     apply plugin: 'checkstyle'
     apply plugin: 'pmd'
@@ -15,10 +16,10 @@ subprojects { subproject ->
 
     pitest {
         junit5PluginVersion = '1.2.0'
-        targetClasses = ['ro.eduardismund.flightmgmt.*']
-        excludedClasses = ['ro.eduardismund.flightmgmt.app.App',
+        targetClasses = ['ro.eduardismund.*']
+        excludedClasses = ['ro.eduardismund.flightmgmt.app.*App',
                            'ro.eduardismund.flightmgmt.app.ClientSocketComponentFactory']
-        targetTests = ['ro.eduardismund.flightmgmt.*']
+        targetTests = ['ro.eduardismund.*']
         excludedTestClasses = ['ro.eduardismund.flightmgmt.app.ClientSocketComponentFactoryConnectTest']
         mutationThreshold = 100
         outputFormats = ['HTML']
@@ -35,33 +36,62 @@ subprojects { subproject ->
         mavenCentral()
     }
 
-    application {
-        mainClass = 'ro.eduardismund.flightmgmt.app.App'
-    }
+    def uberJarSubprojects = ['app-standalone', 'app-socket-server', 'app-socket-client']
 
-    jar {
-        manifest {
-            attributes(
-                    'Main-Class': 'ro.eduardismund.flightmgmt.app.App'
-            )
+    if(uberJarSubprojects.contains(subproject.name)) {
+
+        def mainClassName = 'ro.eduardismund.flightmgmt.app.StandaloneApp'
+        if (subproject.name.equals('app-socket-server')) {
+            mainClassName = 'ro.eduardismund.flightmgmt.app.SocketServerApp'
+        } else if (subproject.name.equals('app-socket-client')) {
+            mainClassName = 'ro.eduardismund.flightmgmt.app.SocketClientApp'
         }
+        apply plugin: 'application'
+
+
+        application {
+            mainClass.set(mainClassName)
+        }
+
+        tasks.register('uberJar', Jar) {
+            group = 'build'
+            dependsOn assemble
+            archiveBaseName.set("${project.name}-uber")
+            archiveVersion.set("${project.version}")
+
+            from sourceSets.main.output
+
+            from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+            exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+
+
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+            manifest {
+                attributes('Main-Class': mainClassName)
+            }
+        }
+
     }
 
     configurations {
-        testCompileOnly.extendsFrom compileOnly
+        testImplementation.extendsFrom compileOnly
         testAnnotationProcessor.extendsFrom annotationProcessor
     }
 
     dependencies {
+        constraints {
+            api 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+            api 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+            api 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
+
+        }
         compileOnly 'org.projectlombok:lombok:1.18.34'
         compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
         annotationProcessor 'org.projectlombok:lombok:1.18.34'
         testImplementation platform('org.junit:junit-bom:5.10.0')
         testImplementation 'org.junit.jupiter:junit-jupiter'
         testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
-        implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
-        implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
-        implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
 
     }
 
@@ -162,7 +192,7 @@ def configureClassDirectories(task) {
     task.classDirectories.setFrom(
             files(task.classDirectories.files.collect {
                 fileTree(dir: it, exclude: [
-                        '**/ro/eduardismund/flightmgmt/app/App.class'
+                        '**/ro/eduardismund/flightmgmt/app/*App.class'
                 ])
             })
     )

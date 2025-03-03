@@ -3,20 +3,16 @@ package ro.eduardismund.appctx;
 import static ro.eduardismund.appctx.SystemPropertiesEnvironment.SYS_PROP_ENV;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
+
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -31,6 +27,7 @@ public class ApplicationContext {
     static final String CONFIG_FILE = "config/application.properties";
     final Map<Class<?>, Object> components = new HashMap<>();
     final Set<ComponentCondition> componentClasses = new HashSet<>();
+    final List<BeforeRunListener> beforeRunListeners = new ArrayList<>();
 
     @Getter
     private Environment properties;
@@ -86,6 +83,10 @@ public class ApplicationContext {
         registerComponentClass(componentClass, Condition.alwaysTrue());
     }
 
+    public void addBeforeRunListener(BeforeRunListener runListener) {
+        this.beforeRunListeners.add(runListener);
+    }
+
     /**
      * Processes the registered components by creating instances of them based on their conditions and configurations.
      * Components are processed in two stages: first, component factories are handled, and then other components.
@@ -96,7 +97,7 @@ public class ApplicationContext {
         createComponents(Predicate.not(ComponentFactory.class::isAssignableFrom));
     }
 
-    private void createComponents(Predicate<Class<?>> classPredicate) {
+    void createComponents(Predicate<Class<?>> classPredicate) {
         componentClasses.stream()
                 .filter(compCond -> classPredicate.test(compCond.componentClass))
                 .filter(compCond -> compCond.condition.test(properties))
@@ -139,7 +140,7 @@ public class ApplicationContext {
      * @param cls The class of the component to create.
      * @return The created component instance.
      */
-    private Object createComponent(Class<?> cls) {
+    Object createComponent(Class<?> cls) {
 
         return Arrays.stream(cls.getConstructors())
                 .map(constructor -> putComponent(cls, constructor))
@@ -195,6 +196,7 @@ public class ApplicationContext {
      * @param args The arguments to pass to the run method of the components.
      */
     public void run(String... args) {
+        this.beforeRunListeners.forEach(listener -> listener.beforeRun(this::resolveDependency));
         for (final Object component : components.values()) {
             if (component instanceof ApplicationRunnable) {
                 ((ApplicationRunnable) component).run(args);
@@ -202,5 +204,6 @@ public class ApplicationContext {
         }
     }
 
-    record ComponentCondition(Class<?> componentClass, Condition condition) {}
+    record ComponentCondition(Class<?> componentClass, Condition condition) {
+    }
 }

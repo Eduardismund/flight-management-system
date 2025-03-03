@@ -3,6 +3,7 @@ package ro.eduardismund.flightmgmt.app;
 import ro.eduardismund.appctx.ApplicationContext;
 import ro.eduardismund.appctx.Condition;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
+import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
 import ro.eduardismund.flightmgmt.repo.InmemFlightManagementRepository;
 import ro.eduardismund.flightmgmt.repo.JdbcFlightManagementRepository;
 import ro.eduardismund.flightmgmt.service.DefaultFlightManagementService;
@@ -33,7 +34,13 @@ public class StandaloneApp {
         applicationContext.registerComponentClass(DefaultFlightManagementService.class);
         applicationContext.registerComponentClass(AdminUi.class);
         applicationContext.registerComponentClass(CliManagerComponentFactory.class);
+
+        applicationContext.addBeforeRunListener(componentResolver -> componentResolver
+                .resolveComponent(FlightManagementRepository.class)
+                .init());
+
         applicationContext.processComponents();
+
         applicationContext.run(args);
     }
 }

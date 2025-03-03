@@ -13,6 +13,8 @@ import java.util.Set;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class ApplicationContextTest {
     ApplicationContext appCon;
@@ -242,6 +244,26 @@ class ApplicationContextTest {
 
         assertNotNull(component);
         assertSame(component, appCon.components.get(MultipleParametersComponent.class));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"true,true", "false,false", "true,false", "false,true"})
+    void createComponents(boolean isConditionMet, boolean classPredicateResult) {
+        appCon = spy(appCon);
+        final var component = new ApplicationContext.ComponentCondition(ChildComponent.class, env -> isConditionMet);
+        appCon.componentClasses.add(component);
+
+        doReturn(new ChildComponent()).when(appCon).createComponent(any());
+
+        appCon.createComponents(cls -> classPredicateResult);
+
+        var times = never();
+
+        if (isConditionMet && classPredicateResult) {
+            times = times(1);
+        }
+
+        verify(appCon, times).createComponent(ChildComponent.class);
     }
 
     @Test

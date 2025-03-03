@@ -6,8 +6,7 @@ public class MultipleConstructorsComponent {
         // nothing to be done
     }
 
-    public MultipleConstructorsComponent(String arg) {
+    public MultipleConstructorsComponent(ParentComponent arg) {
         // nothing to be done
-
     }
 }
