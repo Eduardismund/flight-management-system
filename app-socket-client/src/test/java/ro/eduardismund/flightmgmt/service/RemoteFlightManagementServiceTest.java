@@ -428,7 +428,7 @@ class RemoteFlightManagementServiceTest {
         var mockCommand = new FindFlightCommand();
         var mockResponse = new FindFlightResponse();
         mockCommand.setNumber(F_123);
-        mockResponse.setSuccess(true);
+        mockResponse.setFound(true);
         FlightItem flight = new FlightItem();
         flight.setNumber(F_123);
         mockResponse.setFlight(flight);
@@ -454,7 +454,7 @@ class RemoteFlightManagementServiceTest {
         var mockCommand = new FindFlightCommand();
         var mockResponse = new FindFlightResponse();
         mockCommand.setNumber(F_123);
-        mockResponse.setSuccess(false);
+        mockResponse.setFound(false);
         mockResponse.setFlight(null);
 
         when(domainMapper.mapToFindFlightCommand(F_123)).thenReturn(mockCommand);

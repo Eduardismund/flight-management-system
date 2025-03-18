@@ -1,9 +1,6 @@
 package ro.eduardismund.flightmgmt.dtos;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 import lombok.Data;
 
 /**
@@ -13,10 +10,10 @@ import lombok.Data;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 public class CreateBookingResponse {
-    @XmlElement
+    @XmlAttribute
     private boolean success;
 
-    @XmlElement
+    @XmlAttribute
     private CreateBookingResponse.CbrErrorType error;
 
     /**

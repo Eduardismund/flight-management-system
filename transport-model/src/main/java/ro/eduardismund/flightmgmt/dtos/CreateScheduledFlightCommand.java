@@ -3,7 +3,6 @@ package ro.eduardismund.flightmgmt.dtos;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Data;
 
@@ -14,10 +13,10 @@ import lombok.Data;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 public class CreateScheduledFlightCommand {
-    @XmlElement
+    @XmlAttribute
     private String flightId;
 
-    @XmlElement
+    @XmlAttribute
     private String airplane;
 
     @XmlAttribute

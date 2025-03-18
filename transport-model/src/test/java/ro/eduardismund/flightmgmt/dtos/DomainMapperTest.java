@@ -44,19 +44,16 @@ class DomainMapperTest {
 
         final var command = new CreateBookingCommand();
         command.setPassenger(new PassengerItem());
-        command.setAssignedSeat(new SeatItem());
-        command.setScheduledFlight(new ScheduledFlightItem());
 
-        final var booking = spyDomainMapper.mapFromCreateBookingCommand(command);
+        final var scheduledFlight = mock(ScheduledFlight.class);
+        final var booking = spyDomainMapper.mapFromCreateBookingCommand(command, scheduledFlight, seat);
 
         assertNotNull(booking);
         assertEquals(passenger, booking.getPassenger());
         assertEquals(seat, booking.getAssignedSeat());
-        assertEquals(new ScheduledFlight(), booking.getScheduledFlight());
+        assertEquals(scheduledFlight, booking.getScheduledFlight());
 
         verify(spyDomainMapper).mapToPassenger(any(PassengerItem.class));
-        verify(spyDomainMapper).mapToSeat(any());
-        verify(spyDomainMapper).mapToScheduledFlight(any());
     }
 
     @Test
@@ -164,27 +161,24 @@ class DomainMapperTest {
         passengerItem.setLastName(LAST_NAME);
         passengerItem.setIdDocument(ID_DOCUMENT);
 
-        final var seatItem = new SeatItem();
-        seatItem.setSeatName("A");
-        seatItem.setRow(1);
-        seatItem.setBusinessClass(true);
-
-        final var scheduledFlightItem = new ScheduledFlightItem();
-
         doReturn(passengerItem).when(spyDomainMapper).mapToPassengerDto(any(Passenger.class));
-        doReturn(seatItem).when(spyDomainMapper).mapToSeatItem(any(Seat.class));
-        doReturn(scheduledFlightItem).when(spyDomainMapper).mapToScheduledFlightItem(any(ScheduledFlight.class));
 
         final var booking = new Booking();
         booking.setPassenger(new Passenger(FIRST_NAME, LAST_NAME, ID_DOCUMENT));
         booking.setAssignedSeat(new Seat(1, "A", true));
-        booking.setScheduledFlight(new ScheduledFlight());
+        final var scheduledFlight = new ScheduledFlight();
+        final var flight = new Flight(F_123);
+        scheduledFlight.setFlight(flight);
+        scheduledFlight.setDepartureTime(LocalDateTime.parse("2022-12-12T10:00:00"));
+        booking.setScheduledFlight(scheduledFlight);
 
         final var response = spyDomainMapper.mapToCreateBookingCommand(booking);
         assertNotNull(response);
-        assertEquals(response.getPassenger(), passengerItem);
-        assertEquals(response.getScheduledFlight(), scheduledFlightItem);
-        assertEquals(response.getAssignedSeat(), seatItem);
+        assertEquals(passengerItem, response.getPassenger());
+        assertEquals("2022-12-12", response.getDepartureDate());
+        assertEquals(1, response.getSeatRow());
+        assertEquals("A", response.getSeatName());
+        assertEquals(F_123, response.getFlightId());
     }
 
     @Test

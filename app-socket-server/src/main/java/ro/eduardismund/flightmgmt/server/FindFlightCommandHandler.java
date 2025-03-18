@@ -25,7 +25,7 @@ public class FindFlightCommandHandler implements CommandHandler<FindFlightComman
 
         if (flight.isPresent()) {
             response.setFlight(flight.get());
-            response.setSuccess(true);
+            response.setFound(true);
         }
 
         return response;
