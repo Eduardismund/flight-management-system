@@ -14,7 +14,7 @@ class CreateAirplaneCommandTest {
     @SuppressWarnings("checkstyle:LineLength")
     public static final String COMMAND =
             """
-            <createAirplaneCommand idNumber="1" model="a"><seatingChart><seats row="1" seatName="A" businessClass="true"/><seats row="1" seatName="B" businessClass="true"/><seats row="2" seatName="C" businessClass="false"/></seatingChart></createAirplaneCommand>""";
+                    <createAirplaneCommand idNumber="1" model="a"><seatingChart><seats><seat row="1" seatName="A" businessClass="true"/><seat row="1" seatName="B" businessClass="true"/><seat row="2" seatName="C" businessClass="false"/></seats></seatingChart></createAirplaneCommand>""";
 
     @SneakyThrows
     @Test

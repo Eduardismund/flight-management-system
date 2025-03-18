@@ -7,7 +7,7 @@ import ro.eduardismund.flightmgmt.dtos.XmlManager;
 import ro.eduardismund.flightmgmt.service.RemoteFlightManagementService;
 
 /**
- * The {@code App} class is the main entry point of the Flight Management system It interacts with
+ * The {@code SocketClientApp} class is the main entry point of the Flight Management system It interacts with
  * the repository, service and the ui in order to manage flights.
  */
 @SuppressWarnings({"PMD.ShortClassName", "PMD.UseUtilityClass"})

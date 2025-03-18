@@ -3,8 +3,7 @@ package ro.eduardismund.flightmgmt.repo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import ro.eduardismund.flightmgmt.domain.Airplane;
 import ro.eduardismund.flightmgmt.domain.Booking;
 import ro.eduardismund.flightmgmt.domain.Flight;
@@ -29,7 +27,7 @@ class InmemFlightManagementFlightManagementRepositoryTest {
     private static final String INCORR_FLIGHT_NUM = "ED0002";
 
     private final InmemFlightManagementPersistenceManager persistenceManager =
-            Mockito.mock(InmemFlightManagementPersistenceManager.class);
+            mock(InmemFlightManagementPersistenceManager.class);
     private final InmemFlightManagementRepository repository = new InmemFlightManagementRepository(persistenceManager);
 
     @Test
@@ -46,12 +44,13 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         repository.setScheduledFlights(scheduledFlights);
         repository.setBookings(bookings);
 
+        final var captor = ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
+        doNothing().when(persistenceManager).load(captor.capture());
+
         repository.init();
 
-        final var captor = ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
-        verify(persistenceManager, times(1)).load(captor.capture());
-
         InmemFlightManagementPersistenceManager.Objects capturedObjects = captor.getValue();
+        verify(persistenceManager, times(1)).load(capturedObjects);
 
         List<Airplane> capturedAirplanes = capturedObjects.airplanes();
         assertEquals(airplanes, capturedAirplanes);
@@ -70,14 +69,15 @@ class InmemFlightManagementFlightManagementRepositoryTest {
     void addFlight() {
         int flights = repository.getFlights().size();
         final var newFlight = new Flight(CORRECT_FLIGHT_NUM);
+        final var captor = ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
+
+        doNothing().when(persistenceManager).dump(captor.capture());
         repository.addFlight(newFlight);
         assertEquals(flights + 1, repository.getFlights().size());
 
-        final var captor = ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
-        verify(persistenceManager).dump(captor.capture());
-
         InmemFlightManagementPersistenceManager.Objects capturedObjects = captor.getValue();
         assertTrue(capturedObjects.flights().contains(newFlight));
+        verify(persistenceManager).dump(capturedObjects);
     }
 
     @Test
@@ -102,32 +102,32 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         final var scheduledFlight = new ScheduledFlight();
         scheduledFlight.setAirplane(new Airplane(CORRECT_AIRPLANE_NUM));
         scheduledFlight.setFlight(new Flight(CORRECT_FLIGHT_NUM));
+        final var captor = ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
 
         int scheduledFlights = repository.getFlights().size();
+        doNothing().when(persistenceManager).dump(captor.capture());
         repository.addScheduledFlight(scheduledFlight);
 
         assertEquals(scheduledFlights + 1, repository.getScheduledFlights().size());
 
-        final var captor = ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
-        verify(persistenceManager).dump(captor.capture());
-
         InmemFlightManagementPersistenceManager.Objects capturedObjects = captor.getValue();
         assertTrue(capturedObjects.scheduledFlights().contains(scheduledFlight));
+        verify(persistenceManager).dump(capturedObjects);
     }
 
     @Test
     void addAirplane() {
         int airplanes = repository.getAirplanes().size();
         final var newAirplane = new Airplane(CORRECT_AIRPLANE_NUM);
+        ArgumentCaptor<InmemFlightManagementPersistenceManager.Objects> captor =
+                ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
+        doNothing().when(persistenceManager).dump(captor.capture());
         repository.addAirplane(newAirplane);
         assertEquals(airplanes + 1, repository.getAirplanes().size());
 
-        ArgumentCaptor<InmemFlightManagementPersistenceManager.Objects> captor =
-                ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
-        verify(persistenceManager).dump(captor.capture());
-
         InmemFlightManagementPersistenceManager.Objects capturedObjects = captor.getValue();
         assertTrue(capturedObjects.airplanes().contains(newAirplane));
+        verify(persistenceManager).dump(capturedObjects);
     }
 
     @Test
@@ -187,17 +187,17 @@ class InmemFlightManagementFlightManagementRepositoryTest {
         final var seat = new Seat(11, "A", true);
         booking.setAssignedSeat(seat);
         booking.setScheduledFlight(scheduledFlight);
+        ArgumentCaptor<InmemFlightManagementPersistenceManager.Objects> captor =
+                ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
 
+        doNothing().when(persistenceManager).dump(captor.capture());
         int bookings = repository.getBookings().size();
         repository.addBooking(booking);
         assertEquals(bookings + 1, repository.getBookings().size());
 
-        ArgumentCaptor<InmemFlightManagementPersistenceManager.Objects> captor =
-                ArgumentCaptor.forClass(InmemFlightManagementPersistenceManager.Objects.class);
-        verify(persistenceManager).dump(captor.capture());
-
         InmemFlightManagementPersistenceManager.Objects capturedObjects = captor.getValue();
         assertTrue(capturedObjects.bookings().contains(booking));
+        verify(persistenceManager).dump(capturedObjects);
     }
 
     @Test

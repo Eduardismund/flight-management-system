@@ -18,5 +18,5 @@ public class FindFlightResponse {
     private FlightItem flight;
 
     @XmlAttribute
-    private boolean success;
+    private boolean found;
 }

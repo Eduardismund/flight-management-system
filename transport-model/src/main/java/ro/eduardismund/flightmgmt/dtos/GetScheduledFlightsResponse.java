@@ -26,7 +26,7 @@ public class GetScheduledFlightsResponse {
      */
     @Singular
     @XmlElementWrapper(name = "scheduledFlights")
-    @XmlElement(name = "scheduledFlights")
+    @XmlElement(name = "scheduledFlight")
     private List<ScheduledFlightItem> scheduledFlights = new ArrayList<>();
 
     /**

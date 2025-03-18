@@ -172,7 +172,7 @@ public class RemoteFlightManagementService implements FlightManagementService {
     @Override
     public Optional<Flight> findFlight(String number) {
         final FindFlightResponse response = sendCommand(domainMapper.mapToFindFlightCommand(number));
-        if (!response.isSuccess()) {
+        if (!response.isFound()) {
             throw new IllegalStateException("Could not get flight");
         }
         return Optional.of(domainMapper.mapToFlight(response.getFlight()));
