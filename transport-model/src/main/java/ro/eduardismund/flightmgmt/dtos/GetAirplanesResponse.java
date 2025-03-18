@@ -20,7 +20,7 @@ import lombok.Singular;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class GetAirplanesResponse {
     @Singular
-    @XmlElementWrapper(name = "airplane")
+    @XmlElementWrapper(name = "airplanes")
     @XmlElement(name = "airplane")
     private List<AirplaneItem> airplanes = new ArrayList<>();
 

@@ -2,7 +2,7 @@ package ro.eduardismund.flightmgmt.dtos;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Data;
 
@@ -13,22 +13,22 @@ import lombok.Data;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 public class CreateScheduledFlightResponse {
-    @XmlElement
+    @XmlAttribute
     private String flightId;
 
-    @XmlElement
+    @XmlAttribute
     private String airplaneId;
 
-    @XmlElement
+    @XmlAttribute
     private boolean success;
 
-    @XmlElement
+    @XmlAttribute
     private String departureTime;
 
-    @XmlElement
+    @XmlAttribute
     private String arrivalTime;
 
-    @XmlElement
+    @XmlAttribute
     private CsfrErrorType error;
 
     /**

@@ -13,6 +13,7 @@
         <exclude name="UnitTestContainsTooManyAsserts"/>
         <exclude name="CheckResultSet"/>
         <exclude name="AvoidUsingHardCodedIP"/>
+        <exclude name="NonExhaustiveSwitch"/>
 
 
     </rule>
@@ -79,6 +80,13 @@
         <!-- https://pmd.github.io/latest/pmd_rules_java_design.html#loosepackagecoupling for how to configure -->
         <!-- this rule if you want to use 0it. -->
         <exclude name="LoosePackageCoupling"/>
+    </rule>
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="80" />
+            <property name="methodReportLevel" value="15" />
+            <property name="cycloOptions" value="" />
+        </properties>
     </rule>
     <rule ref="category/java/design.xml/TooManyMethods">
         <properties>

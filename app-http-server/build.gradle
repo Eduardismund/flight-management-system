@@ -1,0 +1,13 @@
+dependencies {
+    implementation project(':domain-core')
+    implementation project(':transport-model')
+    implementation project(':application-context')
+    implementation project(':jdbc-repository')
+    implementation project(':inmem-repository')
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api'
+    runtimeOnly 'org.glassfish.jaxb:jaxb-runtime'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.19'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+}

@@ -1,9 +1,6 @@
 package ro.eduardismund.flightmgmt.dtos;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 import lombok.Data;
 
 /**
@@ -16,9 +13,15 @@ public class CreateBookingCommand {
     @XmlElement
     private PassengerItem passenger;
 
-    @XmlElement
-    private ScheduledFlightItem scheduledFlight;
+    @XmlAttribute
+    private String flightId;
 
-    @XmlElement
-    private SeatItem assignedSeat;
+    @XmlAttribute
+    private String departureDate;
+
+    @XmlAttribute
+    private int seatRow;
+
+    @XmlAttribute
+    private String seatName;
 }

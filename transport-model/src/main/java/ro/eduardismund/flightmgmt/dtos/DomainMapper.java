@@ -22,13 +22,16 @@ public class DomainMapper {
      * Maps a {@link CreateBookingCommand} to a {@link Booking}.
      *
      * @param command The {@link CreateBookingCommand} to be mapped.
+     * @param scheduledFlight the scheduled flight to be booked
+     * @param scheduledSeat the seat to be assigned
      * @return A {@link Booking} object.
      */
-    public Booking mapFromCreateBookingCommand(CreateBookingCommand command) {
+    public Booking mapFromCreateBookingCommand(
+            CreateBookingCommand command, ScheduledFlight scheduledFlight, Seat scheduledSeat) {
         final var booking = new Booking();
         booking.setPassenger(mapToPassenger(command.getPassenger()));
-        booking.setAssignedSeat(mapToSeat(command.getAssignedSeat()));
-        booking.setScheduledFlight(mapToScheduledFlight(command.getScheduledFlight()));
+        booking.setScheduledFlight(scheduledFlight);
+        booking.setAssignedSeat(scheduledSeat);
         return booking;
     }
 
@@ -131,11 +134,14 @@ public class DomainMapper {
      * @return A {@link CreateBookingCommand} object.
      */
     public CreateBookingCommand mapToCreateBookingCommand(Booking booking) {
-        final var response = new CreateBookingCommand();
-        response.setScheduledFlight(mapToScheduledFlightItem(booking.getScheduledFlight()));
-        response.setPassenger(mapToPassengerDto(booking.getPassenger()));
-        response.setAssignedSeat(mapToSeatItem(booking.getAssignedSeat()));
-        return response;
+        final var command = new CreateBookingCommand();
+        command.setFlightId(booking.getScheduledFlight().getFlight().getNumber());
+        command.setDepartureDate(
+                booking.getScheduledFlight().getDepartureTime().toLocalDate().toString());
+        command.setPassenger(mapToPassengerDto(booking.getPassenger()));
+        command.setSeatRow(booking.getAssignedSeat().getRow());
+        command.setSeatName(booking.getAssignedSeat().getSeatName());
+        return command;
     }
 
     /**

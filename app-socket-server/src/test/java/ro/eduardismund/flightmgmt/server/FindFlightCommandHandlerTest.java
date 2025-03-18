@@ -41,7 +41,7 @@ class FindFlightCommandHandlerTest {
         final var response = handler.handleCommand(command, service, domainMapper);
 
         assertNotNull(response);
-        assertTrue(response.isSuccess());
+        assertTrue(response.isFound());
         assertEquals(flightItem, response.getFlight());
 
         verify(domainMapper).mapToFlightItem(any(Flight.class));
@@ -55,7 +55,7 @@ class FindFlightCommandHandlerTest {
         final var response = handler.handleCommand(command, service, domainMapper);
 
         assertNotNull(response);
-        assertFalse(response.isSuccess());
+        assertFalse(response.isFound());
         assertNull(response.getFlight());
 
         verify(service).findFlight(null);
