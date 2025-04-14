@@ -30,13 +30,13 @@ subprojects { subproject ->
     }
 
     group = 'ro.eduardismund'
-    version = '1.0-SNAPSHOT'
+    version = '0.4.0-SNAPSHOT'
 
     repositories {
         mavenCentral()
     }
 
-    def uberJarSubprojects = ['app-standalone', 'app-socket-server', 'app-socket-client']
+    def uberJarSubprojects = ['app-standalone', 'app-socket-server', 'app-socket-client', 'app-http-server', 'app-http-client']
 
     if(uberJarSubprojects.contains(subproject.name)) {
 
@@ -97,6 +97,7 @@ subprojects { subproject ->
 
     test {
         useJUnitPlatform()
+        systemProperty 'user.timezone', 'UTC'
         finalizedBy jacocoTestReport
     }
 
@@ -136,8 +137,8 @@ subprojects { subproject ->
 
 
 
-    spotbugsReportSetup(tasks.spotbugsMain, 'main')
-    spotbugsReportSetup(tasks.spotbugsTest, 'test')
+    spotbugsReportSetup(tasks.spotbugsMain, 'main', project)
+    spotbugsReportSetup(tasks.spotbugsTest, 'test', project)
 
     spotless {
         java {
@@ -178,13 +179,13 @@ subprojects { subproject ->
     check.dependsOn(jacocoTestCoverageVerification)
 
 }
-def spotbugsReportSetup(it, qualifier) {
+def spotbugsReportSetup(it, qualifier, Project proj) {
     it.excludeFilter = rootProject.layout.projectDirectory
             .file("config/spotbugs/spotbugs-exclusions-${qualifier}.xml")
     it.reports.create('html') {
         required = true
-        outputLocation = project.layout.buildDirectory.file(
-                "/reports/sportbugs/spotbugs-${qualifier}.html")
+        outputLocation = proj.layout.buildDirectory.file(
+                "reports/sportbugs/spotbugs-${qualifier}.html")
     }
 }
 
