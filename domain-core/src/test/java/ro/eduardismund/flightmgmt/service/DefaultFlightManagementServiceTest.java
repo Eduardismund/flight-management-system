@@ -157,7 +157,7 @@ class DefaultFlightManagementServiceTest {
         final var airplane = new Airplane(CORR_AIRPLANE_NUM);
         final var flight = new Flight(CORR_FLIGHT_NUM);
         final var departure = LocalDateTime.now();
-        final var arrival = LocalDateTime.now().plusHours(11);
+        final var arrival = departure.plusHours(11);
 
         final var scheduledFlight = new ScheduledFlight();
         scheduledFlight.setFlight(flight);
