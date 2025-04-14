@@ -3,8 +3,10 @@ name: Gradle Build with UberJAR Artifact
 on:
   push:
     branches: [ main ]
+    tags: [ '*' ]
   pull_request:
     branches: [ main ]
+
 
 jobs:
   build:
@@ -34,8 +36,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build and Assemble Uber Jars
+        if: github.ref != 'refs/tags/*'
         run: ./gradlew clean build uberJar
-
+      - name: Build and Assemble Uber Jars
+        if: github.ref == 'refs/tags/*'
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}  # Remove the 'refs/tags/' prefix
+          ./gradlew clean build uberJar -Pproject_version=$TAG_NAME
       - name: Upload app-socket-server Uber Jar
         uses: actions/upload-artifact@v4
         with:
