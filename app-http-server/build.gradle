@@ -7,7 +7,7 @@ dependencies {
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api'
     runtimeOnly 'org.glassfish.jaxb:jaxb-runtime'
-    implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.19'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:11.0.3'
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 
 }

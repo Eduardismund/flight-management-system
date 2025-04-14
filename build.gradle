@@ -30,7 +30,7 @@ subprojects { subproject ->
     }
 
     group = 'ro.eduardismund'
-    version = '0.4.0-SNAPSHOT'
+    version = "$project_version"
 
     repositories {
         mavenCentral()
