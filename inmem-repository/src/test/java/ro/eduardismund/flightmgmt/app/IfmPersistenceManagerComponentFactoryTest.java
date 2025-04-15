@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
 import org.junit.jupiter.api.Test;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
 import ro.eduardismund.flightmgmt.repo.JavaSerializationFlightManagementPersistenceManager;
 
 class IfmPersistenceManagerComponentFactoryTest {

@@ -34,6 +34,16 @@ subprojects { subproject ->
 
     repositories {
         mavenCentral()
+        maven {
+            url = uri("https://maven.pkg.github.com/Eduardismund/application-context")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+            content {
+                includeGroup("com.github.eduardismund")
+            }
+        }
     }
 
     def uberJarSubprojects = ['app-standalone', 'app-socket-server', 'app-socket-client', 'app-http-server', 'app-http-client']
@@ -84,6 +94,7 @@ subprojects { subproject ->
             api 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
             api 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
             api 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
+            api 'com.github.eduardismund:application-context:0.0.0'
 
         }
         compileOnly 'org.projectlombok:lombok:1.18.34'

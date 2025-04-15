@@ -1,7 +1,7 @@
 package ro.eduardismund.flightmgmt.app;
 
+import com.github.eduardismund.appctx.ApplicationContext;
 import lombok.experimental.UtilityClass;
-import ro.eduardismund.appctx.ApplicationContext;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
 import ro.eduardismund.flightmgmt.dtos.DomainMapper;
 import ro.eduardismund.flightmgmt.dtos.XmlManager;

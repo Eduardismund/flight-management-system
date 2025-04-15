@@ -1,8 +1,8 @@
 package ro.eduardismund.flightmgmt.app;
 
+import com.github.eduardismund.appctx.ApplicationRunnable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
-import ro.eduardismund.appctx.ApplicationRunnable;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
 import ro.eduardismund.flightmgmt.cli.CliManager;
 
