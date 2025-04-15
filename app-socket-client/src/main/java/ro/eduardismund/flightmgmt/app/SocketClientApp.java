@@ -1,6 +1,6 @@
 package ro.eduardismund.flightmgmt.app;
 
-import ro.eduardismund.appctx.ApplicationContext;
+import com.github.eduardismund.appctx.ApplicationContext;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
 import ro.eduardismund.flightmgmt.dtos.DomainMapper;
 import ro.eduardismund.flightmgmt.dtos.XmlManager;

@@ -3,12 +3,12 @@ package ro.eduardismund.flightmgmt.app;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import java.util.Properties;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
 
 class DataSourceComponentFactoryTest {
 

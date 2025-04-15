@@ -37,12 +37,20 @@ jobs:
 
       - name: Build and Assemble Uber Jars
         if: "!startsWith(github.ref, 'refs/tags/')"
-        run: ./gradlew clean build uberJar
+        run: ./gradlew clean build uberJar pitest
+        env:
+          USERNAME: ${{ github.actor }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and Assemble Uber Jars
         if: "startsWith(github.ref, 'refs/tags/')"
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}  # Remove the 'refs/tags/' prefix
-          ./gradlew clean build uberJar -Pproject_version=$TAG_NAME
+          ./gradlew clean build uberJar pitest -Pproject_version=$TAG_NAME
+        env:
+          USERNAME: ${{ github.actor }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload app-socket-server Uber Jar
         uses: actions/upload-artifact@v4
         with:

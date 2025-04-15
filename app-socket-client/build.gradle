@@ -1,9 +1,9 @@
 dependencies {
     implementation project(':domain-core')
     implementation project(':transport-model')
-    implementation project(':application-context')
     implementation project(':cli')
     compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api'
     runtimeOnly 'org.glassfish.jaxb:jaxb-runtime'
+    implementation 'com.github.eduardismund:application-context'
 
 }

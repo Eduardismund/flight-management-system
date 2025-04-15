@@ -1,10 +1,10 @@
 package ro.eduardismund.flightmgmt.app;
 
+import com.github.eduardismund.appctx.ComponentFactory;
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import ro.eduardismund.appctx.ComponentFactory;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
 import ro.eduardismund.flightmgmt.cli.CliManager;
 
 /**

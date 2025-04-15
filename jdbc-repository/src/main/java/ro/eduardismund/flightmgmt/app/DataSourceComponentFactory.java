@@ -1,10 +1,10 @@
 package ro.eduardismund.flightmgmt.app;
 
+import com.github.eduardismund.appctx.ComponentFactory;
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import javax.sql.DataSource;
-import ro.eduardismund.appctx.ComponentFactory;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
 
 /**
  * Factory for creating a {@link DataSource} using environment properties.

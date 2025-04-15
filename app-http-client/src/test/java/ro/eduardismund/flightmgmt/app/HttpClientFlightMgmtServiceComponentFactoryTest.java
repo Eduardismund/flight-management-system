@@ -1,21 +1,19 @@
 package ro.eduardismund.flightmgmt.app;
 
-import org.junit.jupiter.api.Test;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
-import ro.eduardismund.flightmgmt.dtos.DomainMapper;
-import ro.eduardismund.flightmgmt.dtos.XmlManager;
-
-import java.net.URISyntaxException;
-import java.util.Properties;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-class HttpClientFlightMgmtServiceComponentFactoryTest {
-    private final HttpClientFlightMgmtServiceComponentFactory subject = new HttpClientFlightMgmtServiceComponentFactory();
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
+import java.net.URISyntaxException;
+import org.junit.jupiter.api.Test;
+import ro.eduardismund.flightmgmt.dtos.DomainMapper;
+import ro.eduardismund.flightmgmt.dtos.XmlManager;
 
+class HttpClientFlightMgmtServiceComponentFactoryTest {
+    private final HttpClientFlightMgmtServiceComponentFactory subject =
+            new HttpClientFlightMgmtServiceComponentFactory();
 
     @Test
     void createComponent_isSuccessful() {
@@ -28,12 +26,11 @@ class HttpClientFlightMgmtServiceComponentFactoryTest {
         doReturn(mockXmlManager).when(mockResolver).resolveComponent(XmlManager.class);
         doReturn(mockDomainMapper).when(mockResolver).resolveComponent(DomainMapper.class);
 
-        //act
+        // act
 
         final var actual = subject.createComponent(mockProperties, mockResolver);
 
         assertNotNull(actual);
-
     }
 
     @Test

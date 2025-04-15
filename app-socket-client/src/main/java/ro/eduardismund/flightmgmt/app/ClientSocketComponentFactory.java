@@ -1,10 +1,10 @@
 package ro.eduardismund.flightmgmt.app;
 
+import com.github.eduardismund.appctx.ComponentFactory;
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
 import java.net.Socket;
 import lombok.SneakyThrows;
-import ro.eduardismund.appctx.ComponentFactory;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
 
 /**
  * Factory class for creating a client {@link Socket} using server configuration.

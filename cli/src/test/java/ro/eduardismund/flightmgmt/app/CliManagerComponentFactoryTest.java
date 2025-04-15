@@ -3,10 +3,10 @@ package ro.eduardismund.flightmgmt.app;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
 import java.util.Scanner;
 import org.junit.jupiter.api.Test;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
 
 class CliManagerComponentFactoryTest {
 

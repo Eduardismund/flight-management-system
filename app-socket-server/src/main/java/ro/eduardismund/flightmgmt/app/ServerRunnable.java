@@ -1,7 +1,7 @@
 package ro.eduardismund.flightmgmt.app;
 
+import com.github.eduardismund.appctx.ApplicationRunnable;
 import lombok.RequiredArgsConstructor;
-import ro.eduardismund.appctx.ApplicationRunnable;
 import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
 import ro.eduardismund.flightmgmt.server.Server;
 

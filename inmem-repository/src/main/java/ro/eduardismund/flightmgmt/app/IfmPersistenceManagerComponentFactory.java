@@ -1,9 +1,9 @@
 package ro.eduardismund.flightmgmt.app;
 
+import com.github.eduardismund.appctx.ComponentFactory;
+import com.github.eduardismund.appctx.ComponentResolver;
+import com.github.eduardismund.appctx.Environment;
 import java.nio.file.Path;
-import ro.eduardismund.appctx.ComponentFactory;
-import ro.eduardismund.appctx.ComponentResolver;
-import ro.eduardismund.appctx.Environment;
 import ro.eduardismund.flightmgmt.repo.InmemFlightManagementPersistenceManager;
 import ro.eduardismund.flightmgmt.repo.JavaSerializationFlightManagementPersistenceManager;
 
