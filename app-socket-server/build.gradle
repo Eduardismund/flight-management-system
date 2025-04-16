@@ -1,11 +1,13 @@
 dependencies {
+    implementation project(':app-ctx-infra')
     implementation project(':domain-core')
     implementation project(':transport-model')
-    implementation project(':jdbc-repository')
-    implementation project(':inmem-repository')
+    runtimeOnly project(':jdbc-repository')
+    runtimeOnly project(':inmem-repository')
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api'
     runtimeOnly 'org.glassfish.jaxb:jaxb-runtime'
-    implementation 'com.github.eduardismund:application-context'
+    implementation 'org.springframework:spring-context'
+
 
 }

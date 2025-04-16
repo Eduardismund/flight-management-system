@@ -1,6 +1,5 @@
 package ro.eduardismund.flightmgmt.app;
 
-import com.github.eduardismund.appctx.ApplicationRunnable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
@@ -12,7 +11,7 @@ import ro.eduardismund.flightmgmt.cli.CliManager;
  */
 @SuppressFBWarnings("EI_EXPOSE_REP2")
 @RequiredArgsConstructor
-public class AdminCliRunnable implements ApplicationRunnable {
+public class AdminCliRunnable {
     private final CliManager cliManager;
     private final AdminUi adminUi;
 
@@ -22,8 +21,8 @@ public class AdminCliRunnable implements ApplicationRunnable {
      *
      * @param args CLI arguments
      */
-    @Override
-    public void run(String[] args) {
+    @SuppressWarnings("unused")
+    public void run(String... args) {
         cliManager.println("Welcome to Flights Management");
         boolean notFinished = true;
         while (notFinished) {

@@ -9,8 +9,10 @@ import static org.mockito.Mockito.mock;
 import java.net.ServerSocket;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 
-class ClientSocketComponentFactoryConnectTest {
+class ClientSocketSupplierConnectTest {
 
     @SneakyThrows
     @Test
@@ -18,13 +20,17 @@ class ClientSocketComponentFactoryConnectTest {
         final var serverSocket = new ServerSocket(0); // 0 = OS assigns a free port
 
         int port = serverSocket.getLocalPort();
+        var host = "localhost";
 
-        final var config = mock(ServerConfigProperties.class);
-        doReturn("localhost").when(config).getHost();
-        doReturn(port).when(config).getPort();
+        final var config = mock(Environment.class);
+        doReturn(host).when(config).getProperty("serverSocket.host", "localhost");
+        doReturn(String.valueOf(port)).when(config).getProperty("serverSocket.port", "6000");
 
-        final var factory = new ClientSocketComponentFactory();
-        final var clientSocket = factory.createClientSocket(config);
+        final var mockAppContext = mock(ApplicationContext.class);
+        doReturn(config).when(mockAppContext).getEnvironment();
+
+        final var factory = new ClientSocketSupplier(mockAppContext);
+        final var clientSocket = factory.createClientSocket(port, host);
 
         assertNotNull(clientSocket);
         assertEquals("localhost", clientSocket.getInetAddress().getHostName());
