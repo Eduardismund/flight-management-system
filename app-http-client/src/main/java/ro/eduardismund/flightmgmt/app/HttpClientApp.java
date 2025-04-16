@@ -1,13 +1,15 @@
 package ro.eduardismund.flightmgmt.app;
 
-import com.github.eduardismund.appctx.ApplicationContext;
 import lombok.experimental.UtilityClass;
+import org.springframework.context.support.GenericApplicationContext;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
+import ro.eduardismund.flightmgmt.cli.CliManager;
 import ro.eduardismund.flightmgmt.dtos.DomainMapper;
 import ro.eduardismund.flightmgmt.dtos.XmlManager;
+import ro.eduardismund.flightmgmt.service.HttpClientFlightMgmtService;
 
 /**
- *  Entry point for the Http Client App.
+ * Entry point for the Http Client App.
  */
 @UtilityClass
 public class HttpClientApp {
@@ -20,15 +22,17 @@ public class HttpClientApp {
      */
     public static void main(String[] args) {
 
-        final var applicationContext = new ApplicationContext();
-
-        applicationContext.registerComponentClass(HttpClientFlightMgmtServiceComponentFactory.class);
-        applicationContext.registerComponentClass(AdminCliRunnable.class);
-        applicationContext.registerComponentClass(DomainMapper.class);
-        applicationContext.registerComponentClass(XmlManager.class);
-        applicationContext.registerComponentClass(AdminUi.class);
-        applicationContext.registerComponentClass(CliManagerComponentFactory.class);
-        applicationContext.processComponents();
-        applicationContext.run(args);
+        try (var applicationContext = new GenericApplicationContext()) {
+            applicationContext.setEnvironment(new EnvironmentSupplier().get());
+            applicationContext.registerBean(AdminCliRunnable.class);
+            applicationContext.registerBean(
+                    HttpClientFlightMgmtService.class, new HttpClientFlightMgmtServiceSupplier(applicationContext));
+            applicationContext.registerBean(DomainMapper.class);
+            applicationContext.registerBean(XmlManager.class);
+            applicationContext.registerBean(AdminUi.class);
+            applicationContext.registerBean(CliManager.class, new CliManagerSupplier());
+            applicationContext.refresh();
+            applicationContext.getBean(AdminCliRunnable.class).run(args);
+        }
     }
 }

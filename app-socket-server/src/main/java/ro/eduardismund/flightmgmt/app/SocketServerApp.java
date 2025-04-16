@@ -1,12 +1,11 @@
 package ro.eduardismund.flightmgmt.app;
 
-import com.github.eduardismund.appctx.ApplicationContext;
-import com.github.eduardismund.appctx.Condition;
+import javax.sql.DataSource;
+import org.springframework.context.support.GenericApplicationContext;
 import ro.eduardismund.flightmgmt.dtos.DomainMapper;
 import ro.eduardismund.flightmgmt.dtos.XmlManager;
 import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
-import ro.eduardismund.flightmgmt.repo.InmemFlightManagementRepository;
-import ro.eduardismund.flightmgmt.repo.JdbcFlightManagementRepository;
+import ro.eduardismund.flightmgmt.server.Logger;
 import ro.eduardismund.flightmgmt.server.Server;
 import ro.eduardismund.flightmgmt.server.ServerConfigProperties;
 import ro.eduardismund.flightmgmt.service.DefaultFlightManagementService;
@@ -26,27 +25,22 @@ public class SocketServerApp {
      */
     public static void main(String[] args) {
 
-        final var applicationContext = new ApplicationContext();
-        final var useJdbcRepo = Condition.propertyEquals("repository", "jdbc");
-        final var useInmemRepo = useJdbcRepo.negate();
-        applicationContext.registerComponentClass(DataSourceComponentFactory.class);
-        applicationContext.registerComponentClass(ServerRunnable.class);
-        applicationContext.registerComponentClass(Server.class);
-        applicationContext.registerComponent(
-                ServerConfigProperties.builder().port(6000).build());
-        applicationContext.registerComponentClass(JdbcFlightManagementRepository.class, useJdbcRepo);
-        applicationContext.registerComponentClass(IfmPersistenceManagerComponentFactory.class, useInmemRepo);
-        applicationContext.registerComponentClass(InmemFlightManagementRepository.class, useInmemRepo);
-        applicationContext.registerComponentClass(DefaultFlightManagementService.class);
-        applicationContext.registerComponentClass(DomainMapper.class);
-        applicationContext.registerComponentClass(XmlManager.class);
-        applicationContext.registerComponentClass(LoggerComponentFactory.class);
-
-        applicationContext.addBeforeRunListener(componentResolver -> componentResolver
-                .resolveComponent(FlightManagementRepository.class)
-                .init());
-
-        applicationContext.processComponents();
-        applicationContext.run(args);
+        try (var applicationContext = new GenericApplicationContext()) {
+            applicationContext.setEnvironment(new EnvironmentSupplier().get());
+            applicationContext.registerBean(DataSource.class, new DataSourceSupplier(applicationContext));
+            applicationContext.registerBean(ServerRunnable.class);
+            applicationContext.registerBean(Server.class);
+            applicationContext.registerBean(
+                    ServerConfigProperties.class, new ServerConfigPropertiesSupplier(applicationContext));
+            applicationContext.registerBean(
+                    FlightManagementRepository.class, new FlightMgmtRepositorySupplier(applicationContext));
+            applicationContext.registerBean(DefaultFlightManagementService.class);
+            applicationContext.registerBean(DomainMapper.class);
+            applicationContext.registerBean(XmlManager.class);
+            applicationContext.registerBean(Logger.class, new LoggerSupplier());
+            applicationContext.addApplicationListener(new FlightMgmtRepositoryInitApplicationListener());
+            applicationContext.refresh();
+            applicationContext.getBean(ServerRunnable.class).run(args);
+        }
     }
 }
