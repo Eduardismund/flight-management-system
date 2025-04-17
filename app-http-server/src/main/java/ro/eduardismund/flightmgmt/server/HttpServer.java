@@ -10,6 +10,7 @@ import org.apache.catalina.startup.Tomcat;
 @RequiredArgsConstructor
 public class HttpServer {
 
+    final HttpServerProperties properties;
     final FlightsServlet flightServlet;
     final AirplanesServlet airplanesServlet;
     final BookingServlet bookingServlet;
@@ -21,7 +22,7 @@ public class HttpServer {
     @SneakyThrows
     public void start() {
         final var tomcat = createTomcat();
-        tomcat.setPort(8080);
+        tomcat.setPort(properties.port());
         tomcat.getConnector();
 
         final var context = tomcat.addContext("", System.getProperty("java.io.tmpdir"));

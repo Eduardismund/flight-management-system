@@ -1,19 +1,23 @@
 package ro.eduardismund.flightmgmt.app;
 
-import com.github.eduardismund.appctx.ApplicationRunnable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import ro.eduardismund.flightmgmt.server.HttpServer;
 
 /**
- * {@link ApplicationRunnable} implementation that starts the server.
+ * Starts the server.
  */
 @RequiredArgsConstructor
 @Log
-public class HttpServerRunnable implements ApplicationRunnable {
+public class HttpServerRunnable {
     final HttpServer server;
 
-    @Override
+    /**
+     * Starts the server.
+     *
+     * @param args CLI arguments (not used)
+     */
+    @SuppressWarnings("unused")
     public void run(String... args) {
         log.info("Starting HttpServer");
         server.start();

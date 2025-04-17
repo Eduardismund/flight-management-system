@@ -16,6 +16,7 @@ class HttpServerTest {
     BookingServlet bookingServlet;
     ScheduledFlightsServlet sfServlet;
     HttpServer subject;
+    HttpServerProperties properties;
 
     @BeforeEach
     void setUp() {
@@ -23,7 +24,8 @@ class HttpServerTest {
         airplanesServlet = mock(AirplanesServlet.class);
         bookingServlet = mock(BookingServlet.class);
         sfServlet = mock(ScheduledFlightsServlet.class);
-        subject = spy(new HttpServer(flightServlet, airplanesServlet, bookingServlet, sfServlet));
+        properties = HttpServerProperties.builder().port(8081).build();
+        subject = spy(new HttpServer(properties, flightServlet, airplanesServlet, bookingServlet, sfServlet));
     }
 
     @Test
@@ -52,7 +54,7 @@ class HttpServerTest {
 
         subject.start();
 
-        verify(mockTomcat).setPort(8080);
+        verify(mockTomcat).setPort(properties.port());
         verify(mockTomcat).getConnector();
         verify(mockTomcat).addContext("", System.getProperty("java.io.tmpdir"));
         verify(mockTomcat).addServlet("", "FlightsServlet", flightServlet);
@@ -78,6 +80,6 @@ class HttpServerTest {
 
     @Test
     void createTomcat() {
-        assertInstanceOf(Tomcat.class, new HttpServer(null, null, null, null).createTomcat());
+        assertInstanceOf(Tomcat.class, new HttpServer(null, null, null, null, null).createTomcat());
     }
 }

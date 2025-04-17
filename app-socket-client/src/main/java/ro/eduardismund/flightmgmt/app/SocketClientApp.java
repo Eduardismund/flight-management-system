@@ -1,7 +1,9 @@
 package ro.eduardismund.flightmgmt.app;
 
-import com.github.eduardismund.appctx.ApplicationContext;
+import java.net.Socket;
+import org.springframework.context.support.GenericApplicationContext;
 import ro.eduardismund.flightmgmt.cli.AdminUi;
+import ro.eduardismund.flightmgmt.cli.CliManager;
 import ro.eduardismund.flightmgmt.dtos.DomainMapper;
 import ro.eduardismund.flightmgmt.dtos.XmlManager;
 import ro.eduardismund.flightmgmt.service.RemoteFlightManagementService;
@@ -21,17 +23,17 @@ public class SocketClientApp {
      */
     public static void main(String[] args) {
 
-        final var applicationContext = new ApplicationContext();
-        applicationContext.registerComponent(
-                ServerConfigProperties.builder().port(6000).build());
-        applicationContext.registerComponentClass(AdminCliRunnable.class);
-        applicationContext.registerComponentClass(RemoteFlightManagementService.class);
-        applicationContext.registerComponentClass(DomainMapper.class);
-        applicationContext.registerComponentClass(XmlManager.class);
-        applicationContext.registerComponentClass(ClientSocketComponentFactory.class);
-        applicationContext.registerComponentClass(AdminUi.class);
-        applicationContext.registerComponentClass(CliManagerComponentFactory.class);
-        applicationContext.processComponents();
-        applicationContext.run(args);
+        try (var applicationContext = new GenericApplicationContext()) {
+            applicationContext.setEnvironment(new EnvironmentSupplier().get());
+            applicationContext.registerBean(AdminCliRunnable.class);
+            applicationContext.registerBean(RemoteFlightManagementService.class);
+            applicationContext.registerBean(DomainMapper.class);
+            applicationContext.registerBean(XmlManager.class);
+            applicationContext.registerBean(Socket.class, new ClientSocketSupplier(applicationContext));
+            applicationContext.registerBean(AdminUi.class);
+            applicationContext.registerBean(CliManager.class, new CliManagerSupplier());
+            applicationContext.refresh();
+            applicationContext.getBean(AdminCliRunnable.class).run(args);
+        }
     }
 }
