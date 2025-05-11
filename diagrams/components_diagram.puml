@@ -1,0 +1,63 @@
+@startuml
+skinparam componentStyle uml2
+
+actor user
+
+' Define components with colors
+component "app-ctx-infra" as appCtxInfra #LightBlue
+component "app-http-client" as appHttpClient #PaleGreen
+component "app-http-server" as appHttpServer #PaleGreen
+component "app-socket-client" as appSocketClient #Thistle
+component "app-socket-server" as appSocketServer #Thistle
+component "app-standalone" as appStandalone #MistyRose
+component "domain-core" as domainCore #Wheat
+component "inmem-repository" as inmemRepository #LightGoldenRodYellow
+component "jdbc-repository" as jdbcRepository #LightGoldenRodYellow
+component "transport-model" as transportModel #Khaki
+component "cli" as cli #LightSalmon
+
+' Define relationships (dependencies)
+
+user -down-> appStandalone
+user -down-> appHttpClient
+user -down-> appSocketClient
+appStandalone -[hidden]right- appSocketServer
+appSocketServer -[hidden]right- appSocketClient
+appSocketClient -[hidden]right- appHttpServer
+appHttpServer -[hidden]right- appHttpClient
+
+appStandalone <-down- cli
+appStandalone <-down- appCtxInfra
+appStandalone <-down- domainCore
+
+appSocketServer <-down- appCtxInfra
+appSocketServer <-down- domainCore
+appSocketServer <-down- transportModel
+
+appSocketClient <-down- cli
+appSocketClient <-down- transportModel
+appSocketClient <-down- domainCore
+appSocketClient .down.|> domainCore : implement part
+
+
+appHttpServer <-down- appCtxInfra
+appHttpServer <-down- domainCore
+appHttpServer <-down- transportModel
+
+appHttpClient <-down- cli
+appHttpClient <-down- transportModel
+appHttpClient <-down- domainCore
+appHttpClient .down.|> domainCore : implement part
+
+appCtxInfra <-down- inmemRepository
+appCtxInfra <-down- jdbcRepository
+appCtxInfra -down- domainCore
+
+domainCore <|.. inmemRepository: implement part
+domainCore <|.. jdbcRepository: implement part
+
+transportModel - domainCore: mappings
+
+cli <-down- domainCore
+
+@enduml

@@ -1,6 +1,3 @@
 dependencies {
     implementation project(':domain-core')
-    compileOnly 'com.github.eduardismund:application-context'
-    compileOnly 'com.microsoft.sqlserver:mssql-jdbc'
-
 }

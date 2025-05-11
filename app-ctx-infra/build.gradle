@@ -1,0 +1,8 @@
+dependencies {
+    compileOnly 'org.springframework:spring-context'
+    compileOnly project(':domain-core')
+    compileOnly project(':jdbc-repository')
+    compileOnly project(':inmem-repository')
+    compileOnly 'com.microsoft.sqlserver:mssql-jdbc'
+
+}

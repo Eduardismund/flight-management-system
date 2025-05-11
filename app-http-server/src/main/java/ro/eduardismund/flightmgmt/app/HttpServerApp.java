@@ -1,22 +1,21 @@
 package ro.eduardismund.flightmgmt.app;
 
-import com.github.eduardismund.appctx.ApplicationContext;
-import com.github.eduardismund.appctx.Condition;
+import javax.sql.DataSource;
 import lombok.experimental.UtilityClass;
+import org.springframework.context.support.GenericApplicationContext;
 import ro.eduardismund.flightmgmt.dtos.DomainMapper;
 import ro.eduardismund.flightmgmt.dtos.XmlManager;
 import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
-import ro.eduardismund.flightmgmt.repo.InmemFlightManagementRepository;
-import ro.eduardismund.flightmgmt.repo.JdbcFlightManagementRepository;
 import ro.eduardismund.flightmgmt.server.AirplanesServlet;
 import ro.eduardismund.flightmgmt.server.BookingServlet;
 import ro.eduardismund.flightmgmt.server.FlightsServlet;
 import ro.eduardismund.flightmgmt.server.HttpServer;
+import ro.eduardismund.flightmgmt.server.HttpServerProperties;
 import ro.eduardismund.flightmgmt.server.ScheduledFlightsServlet;
 import ro.eduardismund.flightmgmt.service.DefaultFlightManagementService;
 
 /**
- *  Entry point for the Http Server App.
+ * Entry point for the Http Server App.
  */
 @UtilityClass
 public class HttpServerApp {
@@ -29,28 +28,25 @@ public class HttpServerApp {
      */
     public static void main(String[] args) {
 
-        final var applicationContext = new ApplicationContext();
-        final var useJdbcRepo = Condition.propertyEquals("repository", "jdbc");
-        final var useInmemRepo = useJdbcRepo.negate();
-        applicationContext.registerComponentClass(DataSourceComponentFactory.class);
-        applicationContext.registerComponentClass(HttpServerRunnable.class);
-        applicationContext.registerComponentClass(FlightsServlet.class);
-        applicationContext.registerComponentClass(AirplanesServlet.class);
-        applicationContext.registerComponentClass(ScheduledFlightsServlet.class);
-        applicationContext.registerComponentClass(BookingServlet.class);
-        applicationContext.registerComponentClass(HttpServer.class);
-        applicationContext.registerComponentClass(JdbcFlightManagementRepository.class, useJdbcRepo);
-        applicationContext.registerComponentClass(IfmPersistenceManagerComponentFactory.class, useInmemRepo);
-        applicationContext.registerComponentClass(InmemFlightManagementRepository.class, useInmemRepo);
-        applicationContext.registerComponentClass(DefaultFlightManagementService.class);
-        applicationContext.registerComponentClass(DomainMapper.class);
-        applicationContext.registerComponentClass(XmlManager.class);
-
-        applicationContext.addBeforeRunListener(componentResolver -> componentResolver
-                .resolveComponent(FlightManagementRepository.class)
-                .init());
-
-        applicationContext.processComponents();
-        applicationContext.run(args);
+        try (var applicationContext = new GenericApplicationContext()) {
+            applicationContext.setEnvironment(new EnvironmentSupplier().get());
+            applicationContext.registerBean(DataSource.class, new DataSourceSupplier(applicationContext));
+            applicationContext.registerBean(HttpServerRunnable.class);
+            applicationContext.registerBean(FlightsServlet.class);
+            applicationContext.registerBean(AirplanesServlet.class);
+            applicationContext.registerBean(ScheduledFlightsServlet.class);
+            applicationContext.registerBean(BookingServlet.class);
+            applicationContext.registerBean(
+                    HttpServerProperties.class, new HttpServerPropertiesSupplier(applicationContext));
+            applicationContext.registerBean(HttpServer.class);
+            applicationContext.registerBean(
+                    FlightManagementRepository.class, new FlightMgmtRepositorySupplier(applicationContext));
+            applicationContext.registerBean(DefaultFlightManagementService.class);
+            applicationContext.registerBean(DomainMapper.class);
+            applicationContext.registerBean(XmlManager.class);
+            applicationContext.addApplicationListener(new FlightMgmtRepositoryInitApplicationListener());
+            applicationContext.refresh();
+            applicationContext.getBean(HttpServerRunnable.class).run();
+        }
     }
 }

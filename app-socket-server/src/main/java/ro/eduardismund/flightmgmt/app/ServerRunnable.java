@@ -1,26 +1,22 @@
 package ro.eduardismund.flightmgmt.app;
 
-import com.github.eduardismund.appctx.ApplicationRunnable;
 import lombok.RequiredArgsConstructor;
-import ro.eduardismund.flightmgmt.repo.FlightManagementRepository;
 import ro.eduardismund.flightmgmt.server.Server;
 
 /**
- * {@link ApplicationRunnable} implementation that starts the server and initializes the repository.
+ * Starts the server.
  */
 @RequiredArgsConstructor
-public class ServerRunnable implements ApplicationRunnable {
+public class ServerRunnable {
     private final Server server;
-    private final FlightManagementRepository repository;
 
     /**
-     * Initializes the repository and starts the server.
+     * Starts the server.
      *
      * @param args Command-line arguments.
      */
-    @Override
-    public void run(String[] args) {
-        repository.init();
+    @SuppressWarnings("unused")
+    public void run(String... args) {
         server.start();
     }
 }
